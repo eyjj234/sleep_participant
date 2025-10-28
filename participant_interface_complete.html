@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>수면 데이터 수집 - 참가자 페이지</title>
     <style>
-      @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+      @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
 
       * {
         margin: 0;
@@ -14,7 +14,7 @@
       }
 
       body {
-        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI",
+        font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI",
           "Apple SD Gothic Neo", sans-serif;
         background: #ffffff;
         min-height: 100vh;
@@ -532,18 +532,19 @@
         <div class="help-section">
           <h3>❓ 도움이 필요하신가요?</h3>
           <p>
-            기기 연동이 안 되거나 문제가 발생하면<br />언제든 연락주세요. 빠르게
-            도와드리겠습니다!
+            기기 연동이 안 되거나 문제가 발생하면<br />
+            언제든 연락주세요. 빠르게 도와드리겠습니다!
           </p>
           <p
             style="
-              font-size: 20px;
+              font-size: 18px;
               font-weight: bold;
-              color: #667eea;
-              margin-top: 15px;
+              color: #333;
+              margin-top: 12px;
             "
           >
-            📞 010-4343-4195
+            💬 슬랙 채널에서 문의 (우선)<br />
+            <span style="font-size: 15px; color: #666; font-weight: normal;">(급한 경우 📞 010-4343-4195)</span>
           </p>
         </div>
 
@@ -797,7 +798,16 @@
                             </div>
                             <div class="checklist-item">
                                 <input type="checkbox" id="check-data-visible">
-                                <label for="check-data-visible">앱에서 수면 데이터가 보입니다</label>
+                                <label for="check-data-visible">동기화 완료되어 "방금 동기화 완료"를 확인할 수 있습니다</label>
+                            </div>
+                        </div>
+                        <div class="alert alert-info" style="margin-top: 12px; font-size: 13px;">
+                            💡 동기화가 되었는지 불확실한 경우 슬랙으로 매니저에게 문의해주세요.
+                        </div>
+                        <div style="height: 0; overflow: hidden;">
+                            <div class="checklist-item" style="display: none;">
+                                <input type="checkbox" id="dummy-check" checked>
+                                <label for="dummy-check">hidden</label>
                             </div>
                         </div>
                         <div class="action-button">
@@ -822,8 +832,7 @@
                 ? `
                         <div class="alert alert-warning" style="margin-bottom: 20px;">
                             ⏰ 연동 완료 후 1-2일 내에 측정 부탁드리며,<br>
-                            추가 시간이 필요한 경우 매니저에게 연락주세요.<br>
-                            📞 010-4343-4195
+                            추가 시간이 필요한 경우, 슬랙으로 알려주세요.
                         </div>
                         
                         <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
@@ -847,19 +856,23 @@
                             <div class="collection-progress">
                                 <div style="text-align: center; font-weight: bold; color: #1976d2; margin-bottom: 8px;">
                                     측정 상태: ${
-                                      data.collectDays >= 1
+                                      data.status === "수집완료"
                                         ? "✅ 완료"
+                                        : data.collectDays >= 1
+                                        ? "✅ 측정일 도달"
                                         : "⏳ 대기중"
                                     }
                                 </div>
                                 <div style="text-align: center; padding: 20px; background: white; border-radius: 10px;">
                                     <div style="font-size: 48px; margin-bottom: 10px;">
-                                        ${data.collectDays >= 1 ? "✅" : "😴"}
+                                        ${data.status === "수집완료" ? "✅" : data.collectDays >= 1 ? "🎯" : "😴"}
                                     </div>
                                     <div style="font-size: 16px; color: #666;">
                                         ${
-                                          data.collectDays >= 1
+                                          data.status === "수집완료"
                                             ? "측정 완료!"
+                                            : data.collectDays >= 1
+                                            ? "측정일이 되었습니다!"
                                             : "측정 예정일: " +
                                               data.collectStartDate
                                         }
@@ -886,14 +899,89 @@
           {
             state:
               currentStep > 5 ? "completed" : currentStep === 5 ? "active" : "",
-            title: "5단계: 기기 반납 준비",
-            description: `데이터 측정이 완료되었습니다!${
+            title: "5단계: 데이터 확인",
+            description:
+              "앱에서 수면 데이터가 정상적으로 기록되었는지 확인해주세요.",
+            content:
+              currentStep === 5
+                ? `
+                        <a href="#" class="guide-link" onclick="openGuide('check'); return false;">🔍 데이터 확인 방법 보기 →</a>
+                        <div class="alert alert-info" style="margin-top: 16px; margin-bottom: 20px;">
+                            📊 앱에서 지난 밤 수면 데이터(수면 시간, 단계 등)를 확인하신 후 아래 버튼을 눌러주세요.
+                        </div>
+                        
+                        <div style="margin-bottom: 16px;">
+                            <p style="font-weight: bold; margin-bottom: 12px; color: #333;">
+                                ✅ 데이터가 정상적으로 기록되었나요?
+                            </p>
+                        </div>
+
+                        <div class="action-button" style="margin-bottom: 12px;">
+                            <button class="btn" onclick="handleDataCheck(true)" style="background: #000000;">
+                                ✓ 네, 데이터가 정상입니다
+                            </button>
+                        </div>
+                        <div class="action-button">
+                            <button class="btn" onclick="handleDataCheck(false)" style="background: #666666;">
+                                ✗ 아니요, 문제가 있습니다
+                            </button>
+                        </div>
+                    `
+                : "",
+          },
+          {
+            state:
+              currentStep > 6 ? "completed" : currentStep === 6 ? "active" : "",
+            title: "6단계: 데이터 제출",
+            description:
+              "확인하신 데이터를 연구팀에 제출해주세요.",
+            content:
+              currentStep === 6
+                ? `
+                        <div class="alert alert-success" style="margin-bottom: 20px;">
+                            🎉 데이터 확인이 완료되었습니다! 이제 데이터를 제출해주세요.
+                        </div>
+                        
+                        <div class="checklist">
+                            <div class="checklist-item">
+                                <input type="checkbox" id="check-data-consent">
+                                <label for="check-data-consent">수집된 데이터를 연구 목적으로 제공하는 것에 동의합니다</label>
+                            </div>
+                        </div>
+                        
+                        <div class="action-button">
+                            <button class="btn" onclick="updateStatus('데이터제출완료')">✓ 데이터 제출하기</button>
+                        </div>
+                    `
+                : "",
+          },
+          {
+            state:
+              currentStep > 7 ? "completed" : currentStep === 7 ? "active" : "",
+            title: "7단계: 매니저 데이터 확인",
+            description:
+              "매니저가 제출된 데이터를 검토 중입니다. 잠시만 기다려주세요.",
+            content:
+              currentStep === 7
+                ? `
+                        <div class="alert alert-info">
+                            ⏳ 매니저가 데이터를 확인하는 중입니다...<br>
+                            완료되면 자동으로 다음 단계로 진행됩니다.
+                        </div>
+                    `
+                : "",
+          },
+          {
+            state:
+              currentStep > 8 ? "completed" : currentStep === 8 ? "active" : "",
+            title: "8단계: 기기 반납 준비",
+            description: `데이터 제출이 완료되었습니다!${
               data.pickupDate && data.pickupDate !== "조율 중"
                 ? "<br><strong>회수 예정일: " + data.pickupDate + "</strong>"
                 : "<br>곧 택배 회수 일정을 안내해드립니다."
             }`,
             content:
-              currentStep === 5
+              currentStep === 8
                 ? `
                         <div class="checklist">
                             <div class="checklist-item">
@@ -912,12 +1000,12 @@
                 : "",
           },
           {
-            state: currentStep >= 6 ? "completed" : "",
-            title: "완료! 🎉",
+            state: currentStep >= 9 ? "completed" : "",
+            title: "9단계: 완료! 🎉",
             description:
               "데이터 수집 프로젝트에 참여해주셔서 감사합니다!<br>귀하의 데이터는 수면 연구에 큰 도움이 될 것입니다.",
             content:
-              currentStep >= 6
+              currentStep >= 9
                 ? `
                         <div class="alert alert-success">
                             ✅ 모든 단계가 완료되었습니다. 소정의 참가비는 2-3일 내로 지급됩니다.
@@ -932,16 +1020,33 @@
       function getStepNumber(status) {
         const steps = {
           대기중: 1,
+          슬랙참여: 1,
           발송완료: 2,
           수령확인필요: 2,
           수령완료: 3,
           연동대기: 3,
           수집중: 4,
           수집완료: 5,
-          회수대기: 5,
-          회수완료: 6,
+          데이터확인완료: 6,
+          데이터제출완료: 7,
+          매니저확인완료: 8,
+          회수대기: 8,
+          회수완료: 9,
         };
         return steps[status] || 1;
+      }
+
+      // ===== 데이터 확인 처리 =====
+      async function handleDataCheck(isOk) {
+        if (!currentUser) return;
+
+        if (isOk) {
+          // 데이터가 정상인 경우 -> 데이터확인완료 상태로 변경
+          await updateStatus('데이터확인완료');
+        } else {
+          // 문제가 있는 경우 -> 슬랙으로 문의 안내
+          alert('❗️ 슬랙에서 매니저에게 문의해주세요.\n\n문제 상황을 자세히 알려주시면 빠르게 도와드리겠습니다.');
+        }
       }
 
       // ===== 상태 업데이트 =====
@@ -954,7 +1059,9 @@
           return;
         }
 
-        if (!confirm(`상태를 '${newStatus}'로 변경하시겠습니까?`)) {
+        // 데이터확인완료는 confirm 없이 바로 진행
+        const skipConfirm = newStatus === '데이터확인완료';
+        if (!skipConfirm && !confirm(`상태를 '${newStatus}'로 변경하시겠습니까?`)) {
           return;
         }
 
@@ -1073,6 +1180,13 @@
             check2.checked &&
             check3.checked
           );
+        }
+        if (status === "데이터확인완료") {
+          return true; // 버튼 클릭으로 처리
+        }
+        if (status === "데이터제출완료") {
+          const check1 = document.getElementById("check-data-consent");
+          return check1 && check1.checked;
         }
         if (status === "회수대기") {
           const check1 = document.getElementById("check-packed");
