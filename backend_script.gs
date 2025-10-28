@@ -153,32 +153,32 @@ function updateParticipantStatus(data) {
           "측정을 완료했습니다. 데이터 확인 단계입니다."
         );
       } else if (data.status === "데이터확인완료") {
-        sheet.getRange(row, 9).setValue(today); // I열 (데이터확인일) - J→I 이동
+        sheet.getRange(row, 9).setValue(today); // I열 (데이터확인일)
         sendNotificationToManager(
           data.id,
           sheetData[i][1],
-          "데이터 확인을 완료했습니다. 설문 작성 대기 중입니다."
-        );
-      } else if (data.status === "설문완료") {
-        sheet.getRange(row, 10).setValue(today); // J열 (설문완료일) - K→J 이동
-        sendNotificationToManager(
-          data.id,
-          sheetData[i][1],
-          "설문을 완료했습니다. 데이터 제출 대기 중입니다."
+          "데이터 확인을 완료했습니다. 데이터 제출 대기 중입니다."
         );
       } else if (data.status === "데이터제출완료") {
-        sheet.getRange(row, 11).setValue(today); // K열 (데이터제출일) - L→K 이동
+        sheet.getRange(row, 10).setValue(today); // J열 (데이터제출일)
         sendNotificationToManager(
           data.id,
           sheetData[i][1],
           "데이터를 제출했습니다. 매니저 확인이 필요합니다."
         );
       } else if (data.status === "매니저확인완료") {
-        sheet.getRange(row, 12).setValue(today); // L열 (매니저확인일) - M→L 이동
+        sheet.getRange(row, 11).setValue(today); // K열 (매니저확인일)
         sendNotificationToManager(
           data.id,
           sheetData[i][1],
-          "매니저가 데이터를 확인 완료했습니다. 기기 반납 단계로 진행합니다."
+          "매니저가 데이터를 확인 완료했습니다. 설문 작성 대기 중입니다."
+        );
+      } else if (data.status === "설문완료") {
+        sheet.getRange(row, 12).setValue(today); // L열 (설문완료일)
+        sendNotificationToManager(
+          data.id,
+          sheetData[i][1],
+          "설문을 완료했습니다. 기기 반납 단계로 진행합니다."
         );
       } else if (data.status === "회수대기") {
         sendNotificationToManager(
