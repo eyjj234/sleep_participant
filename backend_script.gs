@@ -115,12 +115,12 @@ function updateParticipantStatus(data) {
         );
       } else if (data.status === "수집중") {
         sheet.getRange(row, 7).setValue(today); // G열 (연동완료일)
-        sheet.getRange(row, 8).setValue(today); // H열 (수집시작일)
+        // H열 (수집시작일)은 사용자가 직접 선택하도록 자동 입력 제거
 
         sendNotificationToManager(
           data.id,
           sheetData[i][1],
-          "기기 연동을 완료하고 측정을 시작했습니다."
+          "기기 연동을 완료했습니다. 측정 예정일을 선택해주세요."
         );
       } else if (data.status === "수집완료") {
         sendNotificationToManager(
