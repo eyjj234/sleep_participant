@@ -988,13 +988,54 @@
           {
             state:
               currentStep > 6 ? "completed" : currentStep === 6 ? "active" : "",
-            title: "6단계: 설문 작성",
-            description: "수면 데이터 수집 후 설문조사에 참여해주세요.",
+            title: "6단계: 데이터 제출",
+            description: "수집된 데이터를 연구팀에 제출합니다.",
             content:
               currentStep === 6
                 ? `
                         <div class="alert alert-success" style="margin-bottom: 20px;">
-                            🎉 데이터 확인이 완료되었습니다! 설문 작성을 부탁드립니다.
+                            🎉 데이터 확인이 완료되었습니다! 이제 데이터를 제출해주세요.
+                        </div>
+                        
+                        <div class="checklist">
+                            <div class="checklist-item">
+                                <input type="checkbox" id="check-data-consent">
+                                <label for="check-data-consent">수집된 데이터를 연구 목적으로 제공하는 것에 동의합니다</label>
+                            </div>
+                        </div>
+                        
+                        <div class="action-button">
+                            <button class="btn" onclick="updateStatus('데이터제출완료')">✓ 데이터 제출하기</button>
+                        </div>
+                    `
+                : "",
+          },
+          {
+            state:
+              currentStep > 7 ? "completed" : currentStep === 7 ? "active" : "",
+            title: "7단계: 매니저 데이터 확인",
+            description:
+              "매니저가 제출된 데이터를 검토 중입니다. 잠시만 기다려주세요.",
+            content:
+              currentStep === 7
+                ? `
+                        <div class="alert alert-info">
+                            ⏳ 매니저가 데이터를 확인하는 중입니다...<br>
+                            완료되면 자동으로 다음 단계로 진행됩니다.
+                        </div>
+                    `
+                : "",
+          },
+          {
+            state:
+              currentStep > 8 ? "completed" : currentStep === 8 ? "active" : "",
+            title: "8단계: 설문 작성",
+            description: "수면 데이터 수집 후 설문조사에 참여해주세요.",
+            content:
+              currentStep === 8
+                ? `
+                        <div class="alert alert-success" style="margin-bottom: 20px;">
+                            🎉 데이터가 확인되었습니다! 마지막으로 설문 작성을 부탁드립니다.
                         </div>
                         
                         <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; border: 2px solid #000000; margin-bottom: 20px;">
@@ -1020,47 +1061,6 @@
                         
                         <div class="action-button">
                             <button class="btn" onclick="updateStatus('설문완료')">✓ 설문 제출 완료</button>
-                        </div>
-                    `
-                : "",
-          },
-          {
-            state:
-              currentStep > 7 ? "completed" : currentStep === 7 ? "active" : "",
-            title: "7단계: 데이터 제출",
-            description: "수집된 데이터를 연구팀에 제출합니다.",
-            content:
-              currentStep === 7
-                ? `
-                        <div class="alert alert-success" style="margin-bottom: 20px;">
-                            🎉 설문이 완료되었습니다! 이제 데이터를 제출해주세요.
-                        </div>
-                        
-                        <div class="checklist">
-                            <div class="checklist-item">
-                                <input type="checkbox" id="check-data-consent">
-                                <label for="check-data-consent">수집된 데이터를 연구 목적으로 제공하는 것에 동의합니다</label>
-                            </div>
-                        </div>
-                        
-                        <div class="action-button">
-                            <button class="btn" onclick="updateStatus('데이터제출완료')">✓ 데이터 제출하기</button>
-                        </div>
-                    `
-                : "",
-          },
-          {
-            state:
-              currentStep > 8 ? "completed" : currentStep === 8 ? "active" : "",
-            title: "8단계: 매니저 데이터 확인",
-            description:
-              "매니저가 제출된 데이터를 검토 중입니다. 잠시만 기다려주세요.",
-            content:
-              currentStep === 8
-                ? `
-                        <div class="alert alert-info">
-                            ⏳ 매니저가 데이터를 확인하는 중입니다...<br>
-                            완료되면 자동으로 다음 단계로 진행됩니다.
                         </div>
                     `
                 : "",
@@ -1123,9 +1123,9 @@
           수집중: 4,
           수집완료: 5,
           데이터확인완료: 6,
-          설문완료: 7,
-          데이터제출완료: 8,
-          매니저확인완료: 9,
+          데이터제출완료: 7,
+          매니저확인완료: 8,
+          설문완료: 9,
           회수대기: 9,
           회수완료: 10,
         };
