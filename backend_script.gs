@@ -74,7 +74,7 @@ function getParticipantInfo(participantId, name) {
         collectStartDate: formatDate(data[i][7]),
         daysElapsed: calculateDaysElapsed(data[i][4]),
         collectDays: calculateCollectDays(data[i][7]),
-        pickupDate: formatDate(data[i][9]) || "조율 중", // I→I 위치 변경 없음 (수집종료예정일 제거로 한 칸 앞당겨짐)
+        pickupDate: formatDate(data[i][12]) || "조율 중", // M열 (회수예정일)
       };
 
       return createResponse(true, "정보를 가져왔습니다.", participant);
@@ -226,9 +226,9 @@ function getManagerData() {
       name: data[i][1],
       device: data[i][2],
       status: data[i][3],
-      priority: data[i][12] || "정상",
+      priority: data[i][14] || "정상", // O열 (우선순위)
       daysElapsed: calculateDaysElapsed(data[i][4]),
-      action: data[i][11] || "-",
+      action: data[i][13] || "-", // N열 (다음액션)
     };
 
     participants.push(participant);
@@ -236,7 +236,7 @@ function getManagerData() {
     // 통계 계산
     if (data[i][3] === "회수완료") stats.completed++;
     if (data[i][3] === "수집중") stats.inProgress++;
-    if (data[i][12] === "긴급") stats.urgent++;
+    if (data[i][14] === "긴급") stats.urgent++; // O열 (우선순위)
   }
 
   stats.availableDevices = 10 - stats.inProgress;
