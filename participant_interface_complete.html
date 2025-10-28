@@ -549,7 +549,10 @@
         </div>
 
         <div class="guide-banner">
-          <a href="https://docs.google.com/presentation/d/1UvG6Vl1lWJlcOITc3KmaJboFYnmo1FDiJ-nk9qrsrH8/edit?slide=id.p#slide=id.p" target="_blank">
+          <a
+            href="https://docs.google.com/presentation/d/1UvG6Vl1lWJlcOITc3KmaJboFYnmo1FDiJ-nk9qrsrH8/edit?slide=id.p#slide=id.p"
+            target="_blank"
+          >
             📖 전체 수집 가이드를 읽고 진행해주세요 →
           </a>
         </div>
@@ -682,9 +685,7 @@
                     </div>
                     <div class="info-item">
                         <div class="label">현재 상태</div>
-                        <div class="value"><span class="status-badge" style="color: ${statusColor}">${
-          data.status
-        }</span></div>
+                        <div class="value"><span class="status-badge" style="color: ${statusColor}">${data.status}</span></div>
                     </div>
                 </div>
             `;
@@ -847,9 +848,9 @@
             title: "4단계: 데이터 측정 (1일)",
             description: `스마트워치를 착용하고 하루 밤 수면을 측정해주세요.${
               data.collectStartDate
-                ? "<br><strong>측정 예정일: " +
+                ? "<br><strong>기상 예정일: " +
                   data.collectStartDate +
-                  "</strong>"
+                  "</strong> (전날 밤부터 측정)"
                 : "<br><span style='color: #ff6b6b;'>⚠️ 연동 후 1-2일 내 측정 부탁드립니다!</span>"
             }`,
             content:
@@ -860,15 +861,22 @@
                             추가 시간이 필요한 경우, 슬랙으로 알려주세요.
                         </div>
                         
-                        <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-                            <label style="display: block; font-weight: bold; margin-bottom: 10px; color: #333;">
-                                📅 측정 예정일 선택
+                        <div style="background: #ffeb3b; padding: 20px; border-radius: 12px; border: 2px solid #000000; margin-bottom: 20px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 8px; color: #000;">
+                                📅 수면 측정 날짜 선택
                             </label>
+                            <div style="background: white; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 13px; color: #333; line-height: 1.6;">
+                                💡 <strong>중요:</strong> 아침에 일어난 날짜를 선택하세요.<br>
+                                <span style="color: #666;">
+                                예) 26일 밤 11시에 잠들어 27일 아침 7시에 일어났다면<br>
+                                → <strong>27일</strong>을 선택하세요 (26일 밤~27일 아침 수면)
+                                </span>
+                            </div>
                             <input type="date" id="measure-date" 
                                    value="${data.collectStartDate || ""}"
-                                   style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 16px;">
+                                   style="width: 100%; padding: 12px; border: 2px solid #000000; border-radius: 8px; font-size: 16px;">
                             <button class="btn" onclick="updateMeasureDate()" 
-                                    style="margin-top: 12px; background: #2196f3;">
+                                    style="margin-top: 12px; background: #000000;">
                                 📅 측정일 ${
                                   data.collectStartDate ? "변경" : "설정"
                                 }하기
@@ -903,9 +911,10 @@
                                           data.status === "수집완료"
                                             ? "측정 완료!"
                                             : data.collectDays >= 1
-                                            ? "측정일이 되었습니다!"
-                                            : "측정 예정일: " +
-                                              data.collectStartDate
+                                            ? "기상일이 되었습니다! 데이터를 확인해주세요"
+                                            : "기상 예정일: " +
+                                              data.collectStartDate +
+                                              " (전날 밤부터 측정)"
                                         }
                                     </div>
                                 </div>
