@@ -278,49 +278,65 @@ function getManagerData() {
 // ========================================
 function getDeviceStatus() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  
+
   // 진행현황 시트에서 기기 사용 정보 가져오기
   var progressSheet = ss.getSheetByName("진행현황");
   var progressData = progressSheet.getDataRange().getValues();
-  
-  // 기기현황 시트 (수리중 등 특수 상태 관리용)
+
+  // 기기현황 시트 생성 또는 가져오기
   var deviceSheet = ss.getSheetByName("기기현황");
-  var manualOverrides = {}; // 수동으로 설정된 특수 상태
-  
-  // 기기현황 시트가 있으면 특수 상태만 읽음
-  if (deviceSheet) {
-    var deviceData = deviceSheet.getDataRange().getValues();
-    for (var i = 1; i < deviceData.length; i++) {
-      var deviceNum = deviceData[i][0];
-      var manualStatus = deviceData[i][1];
-      // "수리중"처럼 수동으로 설정된 특수 상태만 저장
-      if (manualStatus === "수리중") {
-        manualOverrides[deviceNum] = manualStatus;
-      }
+  if (!deviceSheet) {
+    deviceSheet = ss.insertSheet("기기현황");
+    deviceSheet.appendRow([
+      "기기번호",
+      "현재상태",
+      "현재사용자",
+      "사용시작일",
+      "비고",
+    ]);
+    // 기본 10대 기기 데이터 생성
+    for (var i = 1; i <= 10; i++) {
+      deviceSheet.appendRow([i, "사용가능", "-", "", ""]);
     }
   }
-  
+
+  // 기존 기기현황에서 "수리중" 같은 수동 설정된 상태만 보존
+  var existingData = deviceSheet.getDataRange().getValues();
+  var manualOverrides = {}; // 기기번호 -> 수동 상태
+  for (var i = 1; i < existingData.length; i++) {
+    var deviceNum = existingData[i][0];
+    var manualStatus = existingData[i][1];
+    if (manualStatus === "수리중") {
+      manualOverrides[deviceNum] = manualStatus;
+    }
+  }
+
   // 기기 1~10번의 사용 현황을 진행현황에서 자동 계산
   var deviceMap = {}; // 기기번호 -> 사용자 정보
-  
+
   for (var i = 1; i < progressData.length; i++) {
     var deviceNum = progressData[i][2]; // C열: 기기번호
     var status = progressData[i][3]; // D열: 현재상태
     var name = progressData[i][1]; // B열: 이름
     var id = progressData[i][0]; // A열: 참가자ID
     var receiveDate = progressData[i][5]; // F열: 수령일
-    
+
     // 기기가 할당되어 있고, 아직 회수 전이면 "사용중"
-    if (deviceNum && deviceNum !== "-" && status !== "회수완료" && status !== "대기중") {
+    if (
+      deviceNum &&
+      deviceNum !== "-" &&
+      status !== "회수완료" &&
+      status !== "대기중"
+    ) {
       deviceMap[deviceNum] = {
         user: name || id,
         status: status,
-        startDate: formatDate(receiveDate)
+        startDate: formatDate(receiveDate),
       };
     }
   }
-  
-  // 1~10번 기기 상태 생성
+
+  // 1~10번 기기 상태 생성 및 시트 업데이트
   var devices = [];
   for (var i = 1; i <= 10; i++) {
     var device = {
@@ -328,12 +344,14 @@ function getDeviceStatus() {
       status: "사용가능",
       currentUser: "-",
       startDate: "-",
-      returnDate: "-"
+      returnDate: "-",
     };
-    
-    // 수동 설정된 특수 상태 (수리중 등)가 있으면 적용
+
+    // 수동 설정된 특수 상태 (수리중 등)가 있으면 최우선 적용
     if (manualOverrides[i]) {
       device.status = manualOverrides[i];
+      device.currentUser = "-";
+      device.startDate = "-";
     }
     // 진행현황에서 사용중인 기기면 "사용중"으로 변경
     else if (deviceMap[i]) {
@@ -341,10 +359,16 @@ function getDeviceStatus() {
       device.currentUser = deviceMap[i].user;
       device.startDate = deviceMap[i].startDate;
     }
-    
+
     devices.push(device);
+
+    // 기기현황 시트 업데이트 (헤더 제외 i+1행)
+    deviceSheet.getRange(i + 1, 1).setValue(i); // A열: 기기번호
+    deviceSheet.getRange(i + 1, 2).setValue(device.status); // B열: 현재상태
+    deviceSheet.getRange(i + 1, 3).setValue(device.currentUser); // C열: 현재사용자
+    deviceSheet.getRange(i + 1, 4).setValue(device.startDate); // D열: 사용시작일
   }
-  
+
   return devices;
 }
 
