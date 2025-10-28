@@ -810,11 +810,11 @@
           },
           {
             state:
-              currentStep > 3 ? "completed" : currentStep === 3 ? "active" : "",
+              currentStep > 3 || data.status === "연동완료" ? "completed" : currentStep === 3 ? "active" : "",
             title: "3단계: 앱 설치 및 기기 연동",
             description: "스마트워치 앱을 설치하고 기기를 연동해주세요.",
             content:
-              currentStep === 3
+              currentStep === 3 && data.status !== "연동완료"
                 ? `
                         <a href="#" class="guide-link" onclick="openGuide('app'); return false;">📱 앱 설치 가이드 보기 →</a>
                         <div class="checklist">
@@ -848,7 +848,7 @@
           },
           {
             state:
-              currentStep > 4 ? "completed" : currentStep === 4 ? "active" : "",
+              currentStep > 4 ? "completed" : (currentStep === 4 || data.status === "연동완료") ? "active" : "",
             title: "4단계: 데이터 측정 (1일)",
             description: `스마트워치를 착용하고 하루 밤 수면을 측정해주세요.${
               data.collectStartDate
@@ -858,7 +858,7 @@
                 : "<br><span style='color: #ff6b6b;'>⚠️ 연동 후 1-2일 내 측정 부탁드립니다!</span>"
             }`,
             content:
-              currentStep === 4
+              (currentStep === 4 || data.status === "연동완료")
                 ? `
                         <div style="background: #ffeb3b; padding: 20px; border-radius: 12px; border: 2px solid #000000; margin-bottom: 20px;">
                             <label style="display: block; font-weight: bold; margin-bottom: 8px; color: #000;">
