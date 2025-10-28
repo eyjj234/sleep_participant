@@ -103,6 +103,8 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
       }
 
       .table-header h2 {
@@ -113,6 +115,7 @@
       .filter-group {
         display: flex;
         gap: 10px;
+        flex-wrap: wrap;
       }
 
       .filter-btn {
@@ -288,6 +291,26 @@
         outline: none;
         border-color: #667eea;
       }
+
+      @media (max-width: 768px) {
+        .table-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .search-box {
+          width: 100%;
+        }
+
+        table {
+          font-size: 12px;
+        }
+
+        th,
+        td {
+          padding: 10px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -327,7 +350,7 @@
       <div class="table-container">
         <div class="table-header">
           <h2>참가자 목록</h2>
-          <div style="display: flex; gap: 15px; align-items: center">
+          <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap">
             <input
               type="text"
               class="search-box"
@@ -338,14 +361,10 @@
               <button class="filter-btn active" data-filter="all">전체</button>
               <button class="filter-btn" data-filter="대기중">대기중</button>
               <button class="filter-btn" data-filter="수집중">수집중</button>
-              <button class="filter-btn" data-filter="데이터제출완료">
-                제출완료
-              </button>
+              <button class="filter-btn" data-filter="데이터제출완료">제출완료</button>
               <button class="filter-btn" data-filter="긴급">긴급</button>
             </div>
-            <button class="refresh-btn" onclick="loadData()">
-              🔄 새로고침
-            </button>
+            <button class="refresh-btn" onclick="loadData()">🔄 새로고침</button>
           </div>
         </div>
 
@@ -520,3 +539,4 @@
     </script>
   </body>
 </html>
+
