@@ -292,6 +292,75 @@
         border-color: #667eea;
       }
 
+      .device-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 15px;
+      }
+
+      .device-card {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s;
+        cursor: pointer;
+      }
+
+      .device-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .device-card.available {
+        border-color: #4caf50;
+        background: #f1f8f4;
+      }
+
+      .device-card.in-use {
+        border-color: #ff9800;
+        background: #fff8f0;
+      }
+
+      .device-number {
+        font-size: 32px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .device-status {
+        font-size: 14px;
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 20px;
+        display: inline-block;
+        margin-bottom: 10px;
+      }
+
+      .device-status.available {
+        background: #4caf50;
+        color: white;
+      }
+
+      .device-status.in-use {
+        background: #ff9800;
+        color: white;
+      }
+
+      .device-user {
+        font-size: 13px;
+        color: #666;
+        margin-top: 8px;
+      }
+
+      .device-date {
+        font-size: 12px;
+        color: #999;
+        margin-top: 5px;
+      }
+
       @media (max-width: 768px) {
         .table-header {
           flex-direction: column;
@@ -346,11 +415,29 @@
         </div>
       </div>
 
+      <!-- 기기 현황 -->
+      <div class="table-container">
+        <div class="table-header">
+          <h2>🔧 기기 현황 (10대)</h2>
+        </div>
+        
+        <div id="device-grid" style="padding: 20px;">
+          <!-- 동적으로 생성 -->
+        </div>
+      </div>
+
       <!-- 참가자 테이블 -->
       <div class="table-container">
         <div class="table-header">
           <h2>참가자 목록</h2>
-          <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap">
+          <div
+            style="
+              display: flex;
+              gap: 15px;
+              align-items: center;
+              flex-wrap: wrap;
+            "
+          >
             <input
               type="text"
               class="search-box"
@@ -361,10 +448,14 @@
               <button class="filter-btn active" data-filter="all">전체</button>
               <button class="filter-btn" data-filter="대기중">대기중</button>
               <button class="filter-btn" data-filter="수집중">수집중</button>
-              <button class="filter-btn" data-filter="데이터제출완료">제출완료</button>
+              <button class="filter-btn" data-filter="데이터제출완료">
+                제출완료
+              </button>
               <button class="filter-btn" data-filter="긴급">긴급</button>
             </div>
-            <button class="refresh-btn" onclick="loadData()">🔄 새로고침</button>
+            <button class="refresh-btn" onclick="loadData()">
+              🔄 새로고침
+            </button>
           </div>
         </div>
 
@@ -411,6 +502,7 @@
           if (result.participants) {
             allParticipants = result.participants;
             updateStats(result.stats);
+            renderDevices(result.devices);
             renderTable(allParticipants);
             updateLastUpdate(result.lastUpdate);
 
@@ -422,6 +514,35 @@
           document.getElementById("loading").innerHTML =
             '<p style="color: #ff6b6b;">❌ 데이터를 불러오는데 실패했습니다.</p>';
         }
+      }
+
+      // ===== 기기 현황 렌더링 =====
+      function renderDevices(devices) {
+        const grid = document.getElementById("device-grid");
+        
+        if (!devices || devices.length === 0) {
+          grid.innerHTML = '<p style="text-align: center; color: #999;">기기 정보가 없습니다.</p>';
+          return;
+        }
+
+        grid.className = "device-grid";
+        grid.innerHTML = devices.map(device => {
+          const isAvailable = device.status === "사용가능";
+          const statusClass = isAvailable ? "available" : "in-use";
+          const statusText = isAvailable ? "사용 가능" : "사용 중";
+
+          return `
+            <div class="device-card ${statusClass}">
+              <div class="device-number">#${device.number}</div>
+              <div class="device-status ${statusClass}">${statusText}</div>
+              ${!isAvailable ? `
+                <div class="device-user">👤 ${device.currentUser}</div>
+                <div class="device-date">📅 ${device.startDate}</div>
+                <div class="device-date">🔙 ${device.returnDate}</div>
+              ` : '<div style="height: 60px;"></div>'}
+            </div>
+          `;
+        }).join('');
       }
 
       // ===== 통계 업데이트 =====
@@ -539,4 +660,3 @@
     </script>
   </body>
 </html>
-

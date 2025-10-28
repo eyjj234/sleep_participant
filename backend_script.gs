@@ -108,6 +108,7 @@ function updateParticipantStatus(data) {
       // 날짜 자동 기록
       if (data.status === "수령완료") {
         sheet.getRange(row, 6).setValue(today); // F열 (수령일)
+        // 알림: 연동 가이드 전송 필요
         sendNotificationToManager(
           data.id,
           sheetData[i][1],
@@ -117,6 +118,7 @@ function updateParticipantStatus(data) {
         sheet.getRange(row, 7).setValue(today); // G열 (연동완료일)
         sheet.getRange(row, 8).setValue(today); // H열 (수집시작일)
 
+        // 수집 종료일 = 시작일 + 7일
         var endDate = new Date(today);
         endDate.setDate(endDate.getDate() + 7);
         sheet.getRange(row, 9).setValue(endDate); // I열 (수집종료예정일)
@@ -127,29 +129,11 @@ function updateParticipantStatus(data) {
           "기기 연동을 완료하고 수집을 시작했습니다."
         );
       } else if (data.status === "수집완료") {
+        sheet.getRange(row, 10).setValue(today); // J열 (데이터확인일)
         sendNotificationToManager(
           data.id,
           sheetData[i][1],
-          "측정을 완료했습니다. 데이터 확인 단계입니다."
-        );
-      } else if (data.status === "데이터확인완료") {
-        sendNotificationToManager(
-          data.id,
-          sheetData[i][1],
-          "앱에서 데이터를 확인했습니다. 데이터 제출 대기 중입니다."
-        );
-      } else if (data.status === "데이터제출완료") {
-        sheet.getRange(row, 10).setValue(today); // J열 (데이터제출일)
-        sendNotificationToManager(
-          data.id,
-          sheetData[i][1],
-          "데이터를 제출했습니다. 매니저 확인이 필요합니다."
-        );
-      } else if (data.status === "매니저확인완료") {
-        sendNotificationToManager(
-          data.id,
-          sheetData[i][1],
-          "데이터 확인이 완료되었습니다. 회수 준비가 필요합니다."
+          "7일 수집을 완료했습니다. 회수 준비가 필요합니다."
         );
       }
 
@@ -206,15 +190,54 @@ function getManagerData() {
 
   stats.availableDevices = 10 - stats.inProgress;
 
+  // 기기 현황 데이터 가져오기
+  var devices = getDeviceStatus();
+
   var result = {
     participants: participants,
     stats: stats,
+    devices: devices,
     lastUpdate: new Date().toISOString(),
   };
 
   return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(
     ContentService.MimeType.JSON
   );
+}
+
+// ========================================
+// 기기 현황 조회
+// ========================================
+function getDeviceStatus() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var deviceSheet = ss.getSheetByName("기기현황");
+  
+  // 기기현황 시트가 없으면 생성
+  if (!deviceSheet) {
+    deviceSheet = ss.insertSheet("기기현황");
+    deviceSheet.appendRow(["기기번호", "현재상태", "현재사용자", "사용시작일", "예상반환일"]);
+    
+    // 기본 10대 기기 데이터 생성
+    for (var i = 1; i <= 10; i++) {
+      deviceSheet.appendRow([i, "사용가능", "-", "", ""]);
+    }
+  }
+  
+  var deviceData = deviceSheet.getDataRange().getValues();
+  var devices = [];
+  
+  for (var i = 1; i < deviceData.length; i++) {
+    var device = {
+      number: deviceData[i][0],
+      status: deviceData[i][1] || "사용가능",
+      currentUser: deviceData[i][2] || "-",
+      startDate: formatDate(deviceData[i][3]) || "-",
+      returnDate: formatDate(deviceData[i][4]) || "-",
+    };
+    devices.push(device);
+  }
+  
+  return devices;
 }
 
 // ========================================
