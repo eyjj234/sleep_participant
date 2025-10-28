@@ -490,7 +490,7 @@
             color: #666;
           "
         >
-          💬 참가자 ID는 문자를 통해 안내드립니다.
+          💬 참가자 ID는 참여요청 문자와 슬랙에서 확인할 수 있습니다.
         </p>
         <div id="login-error" class="error-message" style="display: none"></div>
       </div>
@@ -543,9 +543,7 @@
 
       // ===== 로그인 =====
       async function login() {
-        const id = document
-          .getElementById("participant-id")
-          .value.trim();
+        const id = document.getElementById("participant-id").value.trim();
         const name = document.getElementById("participant-name").value.trim();
 
         if (!id || !name) {
@@ -555,7 +553,10 @@
 
         // 참가자 ID 유효성 검사 (숫자 4자리)
         if (!/^\d{4}$/.test(id)) {
-          showError("login-error", "참가자 ID는 숫자 4자리여야 합니다. (예: 0001)");
+          showError(
+            "login-error",
+            "참가자 ID는 숫자 4자리여야 합니다. (예: 0001)"
+          );
           return;
         }
 
