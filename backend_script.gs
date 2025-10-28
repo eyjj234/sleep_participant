@@ -442,11 +442,11 @@ function updateMeasureDate(data) {
         try {
           var currentStatus = sheetData[i][3];
           Logger.log("현재 상태: " + currentStatus);
-          
+
           if (currentStatus === "연동완료" || currentStatus === "연동대기") {
             sheet.getRange(row, 4).setValue("수집중"); // D열 (현재상태)
             Logger.log("✓ 상태를 '수집중'으로 변경");
-            
+
             sendNotificationToManager(
               data.id,
               sheetData[i][1],
@@ -471,7 +471,10 @@ function updateMeasureDate(data) {
         }
 
         Logger.log("=== 측정일 업데이트 성공 완료 ===");
-        return createResponse(true, "측정 예정일이 설정되었습니다. 측정을 시작합니다!");
+        return createResponse(
+          true,
+          "측정 예정일이 설정되었습니다. 측정을 시작합니다!"
+        );
       }
     }
 
