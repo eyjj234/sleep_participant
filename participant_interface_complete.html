@@ -774,7 +774,9 @@
       // ===== 타임라인 단계 생성 =====
       function getTimelineSteps(data) {
         const currentStep = getStepNumber(data.status);
-        console.log(`[getTimelineSteps] 상태: ${data.status}, 단계: ${currentStep}`);
+        console.log(
+          `[getTimelineSteps] 상태: ${data.status}, 단계: ${currentStep}`
+        );
 
         return [
           {
@@ -811,12 +813,15 @@
           },
           {
             state: (() => {
-              const state3 = currentStep > 3 || data.status === "연동완료"
-                ? "completed"
-                : currentStep === 3
-                ? "active"
-                : "";
-              console.log(`[3단계] currentStep=${currentStep}, status=${data.status}, state=${state3}`);
+              const state3 =
+                currentStep > 3 || data.status === "연동완료"
+                  ? "completed"
+                  : currentStep === 3
+                  ? "active"
+                  : "";
+              console.log(
+                `[3단계] currentStep=${currentStep}, status=${data.status}, state=${state3}`
+              );
               return state3;
             })(),
             title: "3단계: 앱 설치 및 기기 연동",
@@ -856,12 +861,15 @@
           },
           {
             state: (() => {
-              const state4 = currentStep > 4
-                ? "completed"
-                : currentStep === 4 || data.status === "연동완료"
-                ? "active"
-                : "";
-              console.log(`[4단계] currentStep=${currentStep}, status=${data.status}, state=${state4}`);
+              const state4 =
+                currentStep > 4
+                  ? "completed"
+                  : currentStep === 4 || data.status === "연동완료"
+                  ? "active"
+                  : "";
+              console.log(
+                `[4단계] currentStep=${currentStep}, status=${data.status}, state=${state4}`
+              );
               return state4;
             })(),
             title: "4단계: 데이터 측정 (1일)",
@@ -875,7 +883,8 @@
             content:
               currentStep === 4 || data.status === "연동완료"
                 ? `
-                        <div style="background: #ffeb3b; padding: 20px; border-radius: 12px; border: 2px solid #000000; margin-bottom: 20px;">
+                        <a href="#" class="guide-link" onclick="openGuide('collect'); return false;">📖 데이터 수집 유의사항 및 수집 방법 보기 →</a>
+                        <div style="background: #ffeb3b; padding: 20px; border-radius: 12px; border: 2px solid #000000; margin-bottom: 20px; margin-top: 16px;">
                             <label style="display: block; font-weight: bold; margin-bottom: 8px; color: #000;">
                                 📅 수면 측정 날짜 선택
                             </label>
@@ -1212,7 +1221,7 @@
 
           const result = await response.json();
           console.log("서버 응답:", result);
-          
+
           if (result.success) {
             console.log("현재 상태:", result.data.status);
             currentUser = result.data;
@@ -1313,6 +1322,7 @@
         // 실제 가이드 문서 링크로 변경
         const guides = {
           app: "https://docs.google.com/presentation/d/1UvG6Vl1lWJlcOITc3KmaJboFYnmo1FDiJ-nk9qrsrH8/edit?slide=id.g37e30063af9_0_89#slide=id.g37e30063af9_0_89",
+          collect: "https://docs.google.com/presentation/d/1UvG6Vl1lWJlcOITc3KmaJboFYnmo1FDiJ-nk9qrsrH8/edit?slide=id.g37e30063af9_0_179#slide=id.g37e30063af9_0_179",
           check:
             "https://docs.google.com/presentation/d/1UvG6Vl1lWJlcOITc3KmaJboFYnmo1FDiJ-nk9qrsrH8/edit?slide=id.g37e30063af9_0_231#slide=id.g37e30063af9_0_231",
         };
