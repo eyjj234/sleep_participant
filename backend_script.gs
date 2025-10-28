@@ -114,7 +114,21 @@ function updateParticipantStatus(data) {
           "택배를 수령했습니다."
         );
       } else if (data.status === "연동완료") {
-        sheet.getRange(row, 7).setValue(today); // G열 (연동완료일)
+        Logger.log("=== 연동완료 상태 처리 시작 ===");
+        Logger.log("참가자 ID: " + data.id);
+        Logger.log("행 번호: " + row);
+        Logger.log("오늘 날짜: " + today);
+        
+        try {
+          sheet.getRange(row, 7).setValue(today); // G열 (연동완료일)
+          Logger.log("✓ G열(연동완료일) 기록 완료");
+          
+          // 저장 확인
+          var savedValue = sheet.getRange(row, 7).getValue();
+          Logger.log("저장된 값 확인: " + savedValue);
+        } catch (error) {
+          Logger.log("❌ G열 저장 실패: " + error.message);
+        }
         // H열 (수집시작일)은 사용자가 날짜 선택 후 입력
 
         sendNotificationToManager(
@@ -122,6 +136,7 @@ function updateParticipantStatus(data) {
           sheetData[i][1],
           "기기 연동을 완료했습니다. 측정 예정일을 선택해주세요."
         );
+        Logger.log("=== 연동완료 상태 처리 완료 ===");
       } else if (data.status === "수집중") {
         // 날짜 선택 후 측정일 설정 시 상태 업데이트
         // H열 (수집시작일)은 updateMeasureDate 함수에서 입력됨
