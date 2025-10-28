@@ -359,53 +359,108 @@ function calculateDaysElapsed(startDate) {
 // ========================================
 function updateMeasureDate(data) {
   try {
-    Logger.log(
-      "측정일 업데이트 시작 - ID: " + data.id + ", Date: " + data.date
-    );
+    Logger.log("=== 측정일 업데이트 시작 ===");
+    Logger.log("요청 데이터: " + JSON.stringify(data));
+    Logger.log("ID 타입: " + typeof data.id + ", 값: " + data.id);
+    Logger.log("Date 타입: " + typeof data.date + ", 값: " + data.date);
 
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName("진행현황");
 
     if (!sheet) {
-      Logger.log("진행현황 시트를 찾을 수 없습니다.");
+      Logger.log("❌ 진행현황 시트를 찾을 수 없습니다.");
       return createResponse(false, "진행현황 시트를 찾을 수 없습니다.");
     }
 
     var sheetData = sheet.getDataRange().getValues();
-    Logger.log("시트 데이터 행 수: " + sheetData.length);
+    Logger.log("✓ 시트 데이터 행 수: " + sheetData.length);
 
     // 참가자 찾기
     for (var i = 1; i < sheetData.length; i++) {
+      var sheetId = String(sheetData[i][0]).trim();
+      var requestId = String(data.id).trim();
+
       Logger.log(
-        "비교 중 - 시트 ID: " + sheetData[i][0] + ", 요청 ID: " + data.id
+        "비교 [" +
+          i +
+          "] - 시트 ID: '" +
+          sheetId +
+          "' vs 요청 ID: '" +
+          requestId +
+          "'"
       );
 
-      if (String(sheetData[i][0]) === String(data.id)) {
+      if (sheetId === requestId) {
         var row = i + 1;
-        var measureDate = new Date(data.date);
+        Logger.log("✓ 참가자 발견! 행 번호: " + row);
 
-        Logger.log("참가자 발견 - 행: " + row);
+        // 날짜 파싱 및 검증
+        var measureDate;
+        try {
+          measureDate = new Date(data.date);
+          Logger.log("✓ 날짜 파싱 성공: " + measureDate);
+
+          if (isNaN(measureDate.getTime())) {
+            Logger.log("❌ 유효하지 않은 날짜");
+            return createResponse(false, "유효하지 않은 날짜 형식입니다.");
+          }
+        } catch (dateError) {
+          Logger.log("❌ 날짜 파싱 에러: " + dateError.message);
+          return createResponse(
+            false,
+            "날짜를 처리할 수 없습니다: " + dateError.message
+          );
+        }
+
+        // 기존값 확인
+        var currentValue = sheet.getRange(row, 8).getValue();
+        Logger.log("현재 H열 값: " + currentValue);
 
         // H열(수집시작일)에 측정 예정일 저장
-        sheet.getRange(row, 8).setValue(measureDate);
-        Logger.log("측정일 저장 완료");
+        try {
+          sheet.getRange(row, 8).setValue(measureDate);
+          Logger.log("✓ H열에 측정일 저장 완료");
+        } catch (saveError) {
+          Logger.log("❌ 저장 에러: " + saveError.message);
+          return createResponse(false, "저장 중 오류: " + saveError.message);
+        }
+
+        // 저장 후 확인
+        var newValue = sheet.getRange(row, 8).getValue();
+        Logger.log("저장 후 H열 값: " + newValue);
 
         // 로그 기록
-        logAction(
-          data.id,
-          sheetData[i][1],
-          "측정 예정일 설정: " + data.date,
-          "참가자"
-        );
+        try {
+          logAction(
+            data.id,
+            sheetData[i][1],
+            "측정 예정일 설정: " + data.date,
+            "참가자"
+          );
+          Logger.log("✓ 로그 기록 완료");
+        } catch (logError) {
+          Logger.log("⚠️ 로그 기록 실패 (진행 계속): " + logError.message);
+        }
 
+        Logger.log("=== 측정일 업데이트 성공 완료 ===");
         return createResponse(true, "측정 예정일이 설정되었습니다.");
       }
     }
 
-    Logger.log("참가자를 찾을 수 없습니다: " + data.id);
-    return createResponse(false, "참가자를 찾을 수 없습니다.");
+    Logger.log("❌ 참가자를 찾을 수 없습니다: " + data.id);
+    Logger.log(
+      "시트에 있는 모든 ID: " +
+        sheetData
+          .slice(1)
+          .map(function (row) {
+            return row[0];
+          })
+          .join(", ")
+    );
+    return createResponse(false, "참가자를 찾을 수 없습니다: " + data.id);
   } catch (error) {
-    Logger.log("측정일 업데이트 에러: " + error.message);
+    Logger.log("❌ 측정일 업데이트 치명적 에러: " + error.message);
+    Logger.log("에러 스택: " + error.stack);
     return createResponse(false, "측정일 업데이트 중 오류: " + error.message);
   }
 }
