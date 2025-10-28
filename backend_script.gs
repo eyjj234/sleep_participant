@@ -113,14 +113,23 @@ function updateParticipantStatus(data) {
           sheetData[i][1],
           "택배를 수령했습니다."
         );
-      } else if (data.status === "수집중") {
+      } else if (data.status === "연동완료") {
         sheet.getRange(row, 7).setValue(today); // G열 (연동완료일)
-        // H열 (수집시작일)은 사용자가 직접 선택하도록 자동 입력 제거
+        // H열 (수집시작일)은 사용자가 날짜 선택 후 입력
 
         sendNotificationToManager(
           data.id,
           sheetData[i][1],
           "기기 연동을 완료했습니다. 측정 예정일을 선택해주세요."
+        );
+      } else if (data.status === "수집중") {
+        // 날짜 선택 후 측정일 설정 시 상태 업데이트
+        // H열 (수집시작일)은 updateMeasureDate 함수에서 입력됨
+
+        sendNotificationToManager(
+          data.id,
+          sheetData[i][1],
+          "측정을 시작했습니다."
         );
       } else if (data.status === "수집완료") {
         sendNotificationToManager(
@@ -429,6 +438,25 @@ function updateMeasureDate(data) {
         var newValue = sheet.getRange(row, 8).getValue();
         Logger.log("저장 후 H열 값: " + newValue);
 
+        // 상태를 "수집중"으로 변경
+        try {
+          var currentStatus = sheetData[i][3];
+          Logger.log("현재 상태: " + currentStatus);
+          
+          if (currentStatus === "연동완료" || currentStatus === "연동대기") {
+            sheet.getRange(row, 4).setValue("수집중"); // D열 (현재상태)
+            Logger.log("✓ 상태를 '수집중'으로 변경");
+            
+            sendNotificationToManager(
+              data.id,
+              sheetData[i][1],
+              "측정 예정일을 설정하고 측정을 시작했습니다."
+            );
+          }
+        } catch (statusError) {
+          Logger.log("⚠️ 상태 변경 실패 (진행 계속): " + statusError.message);
+        }
+
         // 로그 기록
         try {
           logAction(
@@ -443,7 +471,7 @@ function updateMeasureDate(data) {
         }
 
         Logger.log("=== 측정일 업데이트 성공 완료 ===");
-        return createResponse(true, "측정 예정일이 설정되었습니다.");
+        return createResponse(true, "측정 예정일이 설정되었습니다. 측정을 시작합니다!");
       }
     }
 

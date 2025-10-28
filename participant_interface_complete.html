@@ -717,6 +717,11 @@
             message:
               "⚠️ 아직 기기 연동이 확인되지 않았습니다. 가이드를 확인해주세요.",
           },
+          연동완료: {
+            type: "info",
+            message:
+              "✅ 기기 연동 완료! 이제 측정 예정일을 선택해주세요.",
+          },
           수집중: {
             type: "warning",
             message: data.collectStartDate
@@ -837,7 +842,7 @@
                             </div>
                         </div>
                         <div class="action-button">
-                            <button class="btn" onclick="updateStatus('수집중')">✓ 연동 완료 알리기</button>
+                            <button class="btn" onclick="updateStatus('연동완료')">✓ 연동 완료 알리기</button>
                         </div>
                     `
                 : "",
@@ -1098,6 +1103,7 @@
           수령확인필요: 2,
           수령완료: 3,
           연동대기: 3,
+          연동완료: 3,
           수집중: 4,
           수집완료: 5,
           데이터확인완료: 6,
@@ -1300,6 +1306,7 @@
           발송완료: "#ffa500",
           수령완료: "#2196f3",
           연동대기: "#ff6b6b",
+          연동완료: "#2196f3",
           수집중: "#4caf50",
           수집완료: "#4caf50",
           회수대기: "#667eea",
