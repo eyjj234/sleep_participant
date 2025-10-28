@@ -1100,7 +1100,11 @@
           },
           {
             state:
-              currentStep > 10 ? "completed" : currentStep === 10 ? "active" : "",
+              currentStep > 10
+                ? "completed"
+                : currentStep === 10
+                ? "active"
+                : "",
             title: "10단계: 기기 회수 대기",
             description: `반납 준비가 완료되었습니다!${
               data.pickupDate && data.pickupDate !== "조율 중"
@@ -1126,7 +1130,7 @@
               currentStep >= 11
                 ? `
                         <div class="alert alert-success">
-                            ✅ 모든 단계가 완료되었습니다. 소정의 참가비는 2-3일 내로 지급됩니다.
+                            ✅ 모든 단계가 완료되었습니다. 참가비 지급 안내는 별도(이메일/슬랙)로 전달드리겠습니다.
                         </div>
                     `
                 : "",
