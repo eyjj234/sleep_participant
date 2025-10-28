@@ -720,8 +720,8 @@
           수집중: {
             type: "warning",
             message: data.collectStartDate
-              ? `😴 측정 예정일: ${data.collectStartDate}. 해당 날짜에 스마트워치를 착용하고 주무세요.`
-              : `⚠️ 연동 완료! 1-2일 내에 측정 부탁드리며, 추가 시간이 필요한 경우 매니저에게 알려주세요. (📞 010-4343-4195)`,
+              ? `😴 기상 예정일: ${data.collectStartDate} (전날 밤~해당일 아침 수면 측정)<br>스마트워치를 착용하고 주무세요.`
+              : `⚠️ 연동 완료! 1-2일 내에 측정 부탁드리며, 추가 시간이 필요한 경우 슬랙으로 알려주세요.`,
           },
           수집완료: {
             type: "success",
@@ -856,11 +856,6 @@
             content:
               currentStep === 4
                 ? `
-                        <div class="alert alert-warning" style="margin-bottom: 20px;">
-                            ⏰ 연동 완료 후 1-2일 내에 측정 부탁드리며,<br>
-                            추가 시간이 필요한 경우, 슬랙으로 알려주세요.
-                        </div>
-                        
                         <div style="background: #ffeb3b; padding: 20px; border-radius: 12px; border: 2px solid #000000; margin-bottom: 20px;">
                             <label style="display: block; font-weight: bold; margin-bottom: 8px; color: #000;">
                                 📅 수면 측정 날짜 선택
