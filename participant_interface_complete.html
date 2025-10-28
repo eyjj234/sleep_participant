@@ -913,9 +913,7 @@
                                     측정 상태: ${
                                       data.status === "수집완료"
                                         ? "✅ 완료"
-                                        : data.collectDays >= 1
-                                        ? "✅ 측정일 도달"
-                                        : "⏳ 대기중"
+                                        : "😴 측정 중"
                                     }
                                 </div>
                                 <div style="text-align: center; padding: 20px; background: white; border-radius: 10px;">
@@ -923,8 +921,6 @@
                                         ${
                                           data.status === "수집완료"
                                             ? "✅"
-                                            : data.collectDays >= 1
-                                            ? "🎯"
                                             : "😴"
                                         }
                                     </div>
@@ -932,11 +928,9 @@
                                         ${
                                           data.status === "수집완료"
                                             ? "측정 완료!"
-                                            : data.collectDays >= 1
-                                            ? "기상일이 되었습니다! 데이터를 확인해주세요"
                                             : "기상 예정일: " +
                                               data.collectStartDate +
-                                              " (전날 밤부터 측정)"
+                                              " (전날 밤부터 측정)<br>측정 완료 후 아래 버튼을 눌러주세요"
                                         }
                                     </div>
                                 </div>
@@ -947,7 +941,7 @@
                         }
 
                         ${
-                          data.collectDays >= 1
+                          data.collectStartDate && data.status !== "수집완료"
                             ? `
                             <div class="action-button">
                                 <button class="btn" onclick="updateStatus('수집완료')">✓ 측정 완료 알리기</button>
