@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>수면 데이터 수집 - 참가자 페이지</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+          "Apple SD Gothic Neo", sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        margin-bottom: 20px;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .header h1 {
+        font-size: 28px;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .header .subtitle {
+        color: #666;
+        font-size: 14px;
+      }
+
+      .input-group {
+        margin-bottom: 20px;
+      }
+
+      .input-group label {
+        display: block;
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+
+      .input-group input {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+      }
+
+      .input-group input:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      .btn {
+        width: 100%;
+        padding: 15px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .btn:hover:not(:disabled) {
+        background: #5568d3;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .progress-section {
+        display: none;
+      }
+
+      .user-info {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        color: white;
+      }
+
+      .user-info h2 {
+        font-size: 22px;
+        margin-bottom: 15px;
+      }
+
+      .user-info .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+
+      .user-info .info-item {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 12px;
+        border-radius: 10px;
+      }
+
+      .user-info .label {
+        font-size: 12px;
+        opacity: 0.9;
+        margin-bottom: 5px;
+      }
+
+      .user-info .value {
+        font-size: 16px;
+        font-weight: bold;
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: bold;
+        background: white;
+      }
+
+      .alert {
+        padding: 18px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        font-size: 15px;
+        line-height: 1.6;
+      }
+
+      .alert-info {
+        background: #e3f2fd;
+        color: #0d47a1;
+        border-left: 5px solid #2196f3;
+      }
+
+      .alert-success {
+        background: #e8f5e9;
+        color: #1b5e20;
+        border-left: 5px solid #4caf50;
+      }
+
+      .alert-warning {
+        background: #fff3e0;
+        color: #e65100;
+        border-left: 5px solid #ff9800;
+      }
+
+      .timeline {
+        position: relative;
+        padding: 20px 0;
+      }
+
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: 20px;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: linear-gradient(180deg, #667eea 0%, #e9ecef 100%);
+      }
+
+      .timeline-step {
+        position: relative;
+        padding-left: 60px;
+        margin-bottom: 35px;
+        opacity: 0.5;
+        transition: opacity 0.3s;
+      }
+
+      .timeline-step.active,
+      .timeline-step.completed {
+        opacity: 1;
+      }
+
+      .timeline-step .step-circle {
+        position: absolute;
+        left: 8px;
+        top: 0;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: bold;
+        color: #999;
+        border: 3px solid white;
+        z-index: 1;
+      }
+
+      .timeline-step.active .step-circle {
+        background: #667eea;
+        color: white;
+        box-shadow: 0 0 0 6px rgba(102, 126, 234, 0.2);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 0 6px rgba(102, 126, 234, 0.2);
+        }
+        50% {
+          box-shadow: 0 0 0 10px rgba(102, 126, 234, 0.1);
+        }
+      }
+
+      .timeline-step.completed .step-circle {
+        background: #4caf50;
+        color: white;
+      }
+
+      .timeline-step.completed .step-circle::after {
+        content: "✓";
+      }
+
+      .step-content {
+        background: #f8f9fa;
+        padding: 22px;
+        border-radius: 12px;
+        border-left: 4px solid #e9ecef;
+      }
+
+      .timeline-step.active .step-content {
+        background: white;
+        border-left-color: #667eea;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      }
+
+      .timeline-step.completed .step-content {
+        border-left-color: #4caf50;
+      }
+
+      .step-title {
+        font-size: 17px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 12px;
+      }
+
+      .step-description {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 16px;
+        line-height: 1.7;
+      }
+
+      .checklist {
+        margin: 16px 0;
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+      }
+
+      .checklist-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        font-size: 14px;
+        color: #333;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        transition: background 0.2s;
+      }
+
+      .checklist-item:hover {
+        background: white;
+      }
+
+      .checklist-item input[type="checkbox"] {
+        margin-right: 12px;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+      }
+
+      .action-button {
+        margin-top: 18px;
+      }
+
+      .guide-link {
+        display: inline-flex;
+        align-items: center;
+        color: #667eea;
+        text-decoration: none;
+        font-size: 14px;
+        margin-top: 12px;
+        font-weight: 600;
+        padding: 8px 0;
+      }
+
+      .guide-link:hover {
+        text-decoration: underline;
+      }
+
+      .help-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 25px;
+        border-radius: 15px;
+        margin-top: 25px;
+        text-align: center;
+      }
+
+      .help-section h3 {
+        font-size: 18px;
+        color: #333;
+        margin-bottom: 12px;
+      }
+
+      .help-section p {
+        font-size: 14px;
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 15px;
+      }
+
+      .contact-button {
+        display: inline-block;
+        padding: 12px 30px;
+        background: #667eea;
+        color: white;
+        text-decoration: none;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        transition: all 0.3s;
+      }
+
+      .contact-button:hover {
+        background: #5568d3;
+        transform: translateY(-2px);
+      }
+
+      .loading {
+        text-align: center;
+        padding: 50px;
+        color: #666;
+      }
+
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .logout-button {
+        background: #6c757d;
+        padding: 12px;
+        font-size: 14px;
+        margin-top: 15px;
+      }
+
+      .error-message {
+        text-align: center;
+        color: #dc3545;
+        padding: 20px;
+        font-size: 15px;
+        background: #ffe6e6;
+        border-radius: 10px;
+        margin: 15px 0;
+      }
+
+      .collection-progress {
+        background: #e3f2fd;
+        padding: 20px;
+        border-radius: 12px;
+        margin: 15px 0;
+      }
+
+      .collection-progress .days-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .collection-progress .day-box {
+        aspect-ratio: 1;
+        background: white;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+        color: #999;
+        border: 2px solid #e9ecef;
+      }
+
+      .collection-progress .day-box.completed {
+        background: #4caf50;
+        color: white;
+        border-color: #4caf50;
+      }
+
+      .collection-progress .day-box.current {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+        animation: bounce 2s infinite;
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- 로그인 카드 -->
+      <div class="card" id="login-card">
+        <div class="header">
+          <h1>🌙 수면 데이터 수집</h1>
+          <p class="subtitle">참가자 진행 현황 페이지</p>
+        </div>
+
+        <div class="input-group">
+          <label for="participant-id">참가자 ID</label>
+          <input
+            type="text"
+            id="participant-id"
+            placeholder="예: 0001"
+            maxlength="4"
+            pattern="[0-9]{4}"
+            inputmode="numeric"
+          />
+        </div>
+        <div class="input-group">
+          <label for="participant-name">이름</label>
+          <input type="text" id="participant-name" placeholder="홍길동" />
+        </div>
+        <button class="btn" onclick="login()" id="login-btn">로그인</button>
+        <p
+          style="
+            text-align: center;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #666;
+          "
+        >
+          💬 참가자 ID는 문자를 통해 안내드립니다.
+        </p>
+        <div id="login-error" class="error-message" style="display: none"></div>
+      </div>
+
+      <!-- 진행 현황 카드 -->
+      <div class="card progress-section" id="progress-card">
+        <div class="header">
+          <h1>나의 진행 현황</h1>
+        </div>
+
+        <div class="user-info" id="user-info">
+          <!-- 동적으로 생성 -->
+        </div>
+
+        <div id="current-alert" style="display: none">
+          <!-- 동적으로 생성 -->
+        </div>
+
+        <div class="timeline" id="timeline">
+          <!-- 동적으로 생성 -->
+        </div>
+
+        <div class="help-section">
+          <h3>❓ 도움이 필요하신가요?</h3>
+          <p>
+            기기 연동이 안 되거나 문제가 발생하면<br />언제든 연락주세요. 빠르게
+            도와드리겠습니다!
+          </p>
+          <p
+            style="
+              font-size: 16px;
+              font-weight: 600;
+              color: #667eea;
+              margin-top: 15px;
+              line-height: 1.8;
+            "
+          >
+            📞 슬랙 채널에서 문의<br />
+            <span style="font-size: 14px; color: #666"
+              >(급한 경우 010-4343-4195)</span
+            >
+          </p>
+        </div>
+
+        <button class="btn logout-button" onclick="logout()">로그아웃</button>
+      </div>
+    </div>
+
+    <script>
+      // ===== 설정 =====
+      const SCRIPT_URL =
+        "https://script.google.com/macros/s/AKfycbxkaLKygRzsMeWkqcZPmUqndmHtkAMcgl_yKOmrjsv0iDgxSiRct_LMehBg7w2c_QfJIQ/exec";
+      let currentUser = null;
+
+      // ===== 로그인 =====
+      async function login() {
+        const id = document.getElementById("participant-id").value.trim();
+        const name = document.getElementById("participant-name").value.trim();
+
+        if (!id || !name) {
+          showError("login-error", "참가자 ID와 이름을 모두 입력해주세요.");
+          return;
+        }
+
+        // 참가자 ID 유효성 검사 (숫자 4자리)
+        if (!/^\d{4}$/.test(id)) {
+          showError(
+            "login-error",
+            "참가자 ID는 숫자 4자리여야 합니다. (예: 0001)"
+          );
+          return;
+        }
+
+        const btn = document.getElementById("login-btn");
+        btn.disabled = true;
+        btn.textContent = "로그인 중...";
+
+        try {
+          const response = await fetch(SCRIPT_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({
+              action: "getParticipant",
+              id: id,
+              name: name,
+            }),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            currentUser = result.data;
+            showProgress(result.data);
+            document.getElementById("login-error").style.display = "none";
+          } else {
+            showError("login-error", result.message);
+          }
+        } catch (error) {
+          showError(
+            "login-error",
+            "서버와 통신 중 오류가 발생했습니다. 다시 시도해주세요."
+          );
+          console.error(error);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "로그인";
+        }
+      }
+
+      // ===== 진행 현황 표시 =====
+      function showProgress(data) {
+        document.getElementById("login-card").style.display = "none";
+        document.getElementById("progress-card").style.display = "block";
+
+        // 사용자 정보 표시
+        renderUserInfo(data);
+
+        // 현재 상태 알림
+        renderCurrentAlert(data);
+
+        // 타임라인 렌더링
+        renderTimeline(data);
+      }
+
+      // ===== 사용자 정보 렌더링 =====
+      function renderUserInfo(data) {
+        const statusColor = getStatusColor(data.status);
+
+        document.getElementById("user-info").innerHTML = `
+                <h2>${data.name}님, 환영합니다! 👋</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="label">참가자 ID</div>
+                        <div class="value">${data.id}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">배정 기기</div>
+                        <div class="value">${data.device}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">현재 상태</div>
+                        <div class="value"><span class="status-badge" style="color: ${statusColor}">${
+          data.status
+        }</span></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="label">${
+                          data.status === "수집중" ? "측정 상태" : "진행 경과"
+                        }</div>
+                        <div class="value">${
+                          data.status === "수집중"
+                            ? data.collectDays >= 1
+                              ? "완료"
+                              : "대기중"
+                            : data.daysElapsed + "일"
+                        }</div>
+                    </div>
+                </div>
+            `;
+      }
+
+      // ===== 현재 상태 알림 렌더링 =====
+      function renderCurrentAlert(data) {
+        const alertDiv = document.getElementById("current-alert");
+        const alerts = {
+          대기중: {
+            type: "info",
+            message:
+              "슬랙 워크스페이스에 참여하셨나요? 문자로 받은 초대 링크를 확인해주세요!",
+          },
+          슬랙참여: {
+            type: "info",
+            message: "슬랙 참여 완료! 곧 스마트워치가 발송될 예정입니다.",
+          },
+          발송완료: {
+            type: "warning",
+            message:
+              "📦 스마트워치가 발송되었습니다. 택배를 받으시면 아래 버튼을 눌러주세요.",
+          },
+          수령확인필요: {
+            type: "warning",
+            message: "⚠️ 택배가 도착했을 예정입니다. 수령하셨나요?",
+          },
+          수령완료: {
+            type: "info",
+            message: "📱 이제 앱을 설치하고 기기를 연동해주세요.",
+          },
+          연동대기: {
+            type: "warning",
+            message:
+              "⚠️ 아직 기기 연동이 확인되지 않았습니다. 가이드를 확인해주세요.",
+          },
+          수집중: {
+            type: "warning",
+            message: data.collectStartDate
+              ? `😴 측정 예정일: ${data.collectStartDate}. 해당 날짜에 스마트워치를 착용하고 주무세요.`
+              : `⚠️ 연동 완료! 1-2일 내에 측정 부탁드리며, 추가 시간이 필요한 경우 매니저에게 알려주세요. (📞 010-4343-4195)`,
+          },
+          수집완료: {
+            type: "success",
+            message:
+              "🎉 측정이 완료되었습니다! 이제 앱에서 데이터를 확인해주세요.",
+          },
+          데이터확인중: {
+            type: "info",
+            message:
+              "📊 앱에서 수면 데이터가 4단계로 기록되었는지 확인해주세요.",
+          },
+          데이터제출대기: {
+            type: "warning",
+            message: "📤 가이드를 따라 데이터를 이메일로 제출해주세요.",
+          },
+          매니저확인중: {
+            type: "info",
+            message: "⏳ 매니저가 데이터를 확인 중입니다. 잠시만 기다려주세요.",
+          },
+        };
+
+        const alert = alerts[data.status] || {
+          type: "info",
+          message: "상태를 확인 중입니다.",
+        };
+
+        alertDiv.className = "alert alert-" + alert.type;
+        alertDiv.innerHTML = alert.message;
+        alertDiv.style.display = "block";
+      }
+
+      // ===== 타임라인 렌더링 =====
+      function renderTimeline(data) {
+        const timeline = document.getElementById("timeline");
+        const steps = getTimelineSteps(data);
+
+        timeline.innerHTML = steps
+          .map(
+            (step, index) => `
+                <div class="timeline-step ${step.state}" data-step="${
+              index + 1
+            }">
+                    <div class="step-circle">${
+                      step.state === "completed" || step.state === "active"
+                        ? ""
+                        : index + 1
+                    }</div>
+                    <div class="step-content">
+                        <div class="step-title">${step.title}</div>
+                        <div class="step-description">${step.description}</div>
+                        ${step.content || ""}
+                    </div>
+                </div>
+            `
+          )
+          .join("");
+      }
+
+      // ===== 타임라인 단계 생성 =====
+      function getTimelineSteps(data) {
+        const currentStep = getStepNumber(data.status);
+
+        return [
+          {
+            state: currentStep >= 1 ? "completed" : "",
+            title: "1단계: 참가 확정 & 슬랙 참여",
+            description:
+              "프로젝트 참가가 확정되었습니다. 슬랙 워크스페이스에 참여해주세요.",
+            content:
+              currentStep === 1
+                ? `
+                        <div class="alert alert-info">
+                            📱 슬랙(Slack) 워크스페이스에 초대되셨습니다.<br>
+                            문자로 받으신 초대 링크를 통해 참여해주세요.
+                        </div>
+                        <div class="checklist">
+                            <div class="checklist-item">
+                                <input type="checkbox" id="check-slack-join">
+                                <label for="check-slack-join">슬랙 워크스페이스에 참여했습니다</label>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" id="check-slack-check">
+                                <label for="check-slack-check">공지사항을 확인했습니다</label>
+                            </div>
+                        </div>
+                        <p style="font-size: 13px; color: #666; margin-top: 10px;">
+                            💡 슬랙에서 실시간 공지와 문의응답을 받으실 수 있습니다.
+                        </p>
+                    `
+                : "",
+          },
+          {
+            state:
+              currentStep > 2 ? "completed" : currentStep === 2 ? "active" : "",
+            title: "2단계: 택배 수령 대기",
+            description: data.shipDate
+              ? `발송일: ${data.shipDate}`
+              : "스마트워치가 곧 발송됩니다.",
+            content:
+              currentStep === 2
+                ? `
+                        <div class="checklist">
+                            <div class="checklist-item">
+                                <input type="checkbox" id="check-received">
+                                <label for="check-received">택배를 수령했습니다</label>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" id="check-contents">
+                                <label for="check-contents">스마트워치와 충전기가 모두 들어있습니다</label>
+                            </div>
+                        </div>
+                        <div class="action-button">
+                            <button class="btn" onclick="updateStatus('수령완료')">✓ 수령 완료 알리기</button>
+                        </div>
+                    `
+                : "",
+          },
+          {
+            state:
+              currentStep > 3 ? "completed" : currentStep === 3 ? "active" : "",
+            title: "3단계: 앱 설치 및 기기 연동",
+            description: "스마트워치 앱을 설치하고 기기를 연동해주세요.",
+            content:
+              currentStep === 3
+                ? `
+                        <a href="#" class="guide-link" onclick="openGuide('app'); return false;">📱 앱 설치 가이드 보기 →</a>
+                        <div class="checklist">
+                            <div class="checklist-item">
+                                <input type="checkbox" id="check-app-install">
+                                <label for="check-app-install">앱을 설치했습니다</label>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" id="check-device-sync">
+                                <label for="check-device-sync">스마트워치와 연동했습니다</label>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" id="check-data-visible">
+                                <label for="check-data-visible">앱에서 수면 데이터가 보입니다</label>
+                            </div>
+                        </div>
+                        <div class="action-button">
+                            <button class="btn" onclick="updateStatus('수집중')">✓ 연동 완료 알리기</button>
+                        </div>
+                    `
+                : "",
+          },
+          {
+            state:
+              currentStep > 4 ? "completed" : currentStep === 4 ? "active" : "",
+            title: "4단계: 데이터 측정 (1일)",
+            description: `스마트워치를 착용하고 하루 밤 수면을 측정해주세요.${
+              data.collectStartDate
+                ? "<br><strong>측정 예정일: " +
+                  data.collectStartDate +
+                  "</strong>"
+                : "<br><span style='color: #ff6b6b;'>⚠️ 연동 후 1-2일 내 측정 부탁드립니다!</span>"
+            }`,
+            content:
+              currentStep === 4
+                ? `
+                        <div class="alert alert-warning" style="margin-bottom: 20px;">
+                            ⏰ 연동 완료 후 1-2일 내에 측정 부탁드리며,<br>
+                            추가 시간이 필요한 경우 매니저에게 연락주세요.<br>
+                            📞 010-4343-4195
+                        </div>
+                        
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 10px; color: #333;">
+                                📅 측정 예정일 선택
+                            </label>
+                            <input type="date" id="measure-date" 
+                                   value="${data.collectStartDate || ""}"
+                                   style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 16px;">
+                            <button class="btn" onclick="updateMeasureDate()" 
+                                    style="margin-top: 12px; background: #2196f3;">
+                                📅 측정일 ${
+                                  data.collectStartDate ? "변경" : "설정"
+                                }하기
+                            </button>
+                        </div>
+
+                        ${
+                          data.collectStartDate
+                            ? `
+                            <div class="collection-progress">
+                                <div style="text-align: center; font-weight: bold; color: #1976d2; margin-bottom: 8px;">
+                                    측정 상태: ${
+                                      data.collectDays >= 1
+                                        ? "✅ 완료"
+                                        : "⏳ 대기중"
+                                    }
+                                </div>
+                                <div style="text-align: center; padding: 20px; background: white; border-radius: 10px;">
+                                    <div style="font-size: 48px; margin-bottom: 10px;">
+                                        ${data.collectDays >= 1 ? "✅" : "😴"}
+                                    </div>
+                                    <div style="font-size: 16px; color: #666;">
+                                        ${
+                                          data.collectDays >= 1
+                                            ? "측정 완료!"
+                                            : "측정 예정일: " +
+                                              data.collectStartDate
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="#" class="guide-link" onclick="openGuide('check'); return false;">🔍 데이터 확인 방법 보기 →</a>
+                        `
+                            : ""
+                        }
+
+                        ${
+                          data.collectDays >= 1
+                            ? `
+                            <div class="action-button">
+                                <button class="btn" onclick="updateStatus('수집완료')">✓ 측정 완료 알리기</button>
+                            </div>
+                        `
+                            : ""
+                        }
+                    `
+                : "",
+          },
+          {
+            state:
+              currentStep > 5 ? "completed" : currentStep === 5 ? "active" : "",
+            title: "5단계: 데이터 확인",
+            description:
+              "측정 당일에 앱에 수면 데이터가 4단계로 기록되었는지 확인해주세요.",
+            content:
+              currentStep === 5
+                ? `
+                        <div class="alert alert-info" style="margin-bottom: 20px;">
+                            📱 앱을 열어 측정 당일의 수면 데이터를 확인해주세요.<br>
+                            수면 단계가 4단계(깊은수면, 얕은수면, REM수면, 깨어있음)로 표시되어야 합니다.
+                        </div>
+                        
+                        <a href="https://docs.google.com/presentation/d/1UvG6Vl1lWJlcOITc3KmaJboFYnmo1FDiJ-nk9qrsrH8/edit?slide=id.g37e30063af9_0_231#slide=id.g37e30063af9_0_231" 
+                           class="guide-link" 
+                           target="_blank"
+                           style="display: block; margin-bottom: 20px;">
+                            🔍 데이터 확인 방법 보기 →
+                        </a>
+
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 15px; color: #333;">
+                                📊 앱에 데이터가 4단계로 기록되었습니까?
+                            </label>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn" onclick="handleDataCheck('yes')" 
+                                        style="flex: 1; background: #4caf50;">
+                                    ✅ 네, 4단계로 기록되었습니다
+                                </button>
+                                <button class="btn" onclick="handleDataCheck('no')" 
+                                        style="flex: 1; background: #ff6b6b;">
+                                    ❌ 아니오, 문제가 있습니다
+                                </button>
+                            </div>
+                        </div>
+                    `
+                : "",
+          },
+          {
+            state:
+              currentStep > 6 ? "completed" : currentStep === 6 ? "active" : "",
+            title: "6단계: 데이터 제출",
+            description: "가이드를 따라 수면 데이터를 이메일로 제출해주세요.",
+            content:
+              currentStep === 6
+                ? `
+                        <div class="alert alert-warning" style="margin-bottom: 20px;">
+                            📤 아래 가이드를 따라 데이터를 이메일로 제출해주세요.
+                        </div>
+                        
+                        <a href="https://docs.google.com/presentation/d/1UvG6Vl1lWJlcOITc3KmaJboFYnmo1FDiJ-nk9qrsrH8/edit?slide=id.g37e30063af9_0_231#slide=id.g37e30063af9_0_231" 
+                           class="guide-link" 
+                           target="_blank"
+                           style="display: block; font-size: 16px; padding: 15px; background: white; border-radius: 10px; margin-bottom: 20px;">
+                            📄 데이터 제출 가이드 보기 →
+                        </a>
+
+                        <div class="checklist">
+                            <div class="checklist-item">
+                                <input type="checkbox" id="check-guide-read">
+                                <label for="check-guide-read">가이드를 읽었습니다</label>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" id="check-data-submitted">
+                                <label for="check-data-submitted">데이터를 이메일로 제출했습니다</label>
+                            </div>
+                        </div>
+                        
+                        <div class="action-button">
+                            <button class="btn" onclick="updateStatus('데이터제출완료')">✓ 제출 완료 알리기</button>
+                        </div>
+                    `
+                : "",
+          },
+          {
+            state:
+              currentStep > 7 ? "completed" : currentStep === 7 ? "active" : "",
+            title: "7단계: 매니저 데이터 확인",
+            description: "매니저가 제출하신 데이터를 확인하고 있습니다.",
+            content:
+              currentStep === 7
+                ? `
+                        <div class="alert alert-info" style="margin-bottom: 20px;">
+                            ⏳ 매니저가 데이터를 검토 중입니다.<br>
+                            확인이 완료되면 자동으로 다음 단계로 넘어갑니다.
+                        </div>
+                        
+                        <div style="text-align: center; padding: 40px; background: white; border-radius: 12px;">
+                            <div style="font-size: 60px; margin-bottom: 15px;">⏰</div>
+                            <div style="font-size: 18px; font-weight: bold; color: #333; margin-bottom: 10px;">
+                                데이터 검토 중
+                            </div>
+                            <div style="font-size: 14px; color: #666;">
+                                보통 1-2일 이내에 확인이 완료됩니다.
+                            </div>
+                        </div>
+                        
+                        <p style="font-size: 13px; color: #666; margin-top: 15px; text-align: center;">
+                            💬 문의사항이 있으시면 슬랙 채널에 남겨주세요.
+                        </p>
+                    `
+                : "",
+          },
+          {
+            state:
+              currentStep > 8 ? "completed" : currentStep === 8 ? "active" : "",
+            title: "8단계: 기기 반납 준비",
+            description: `데이터 측정이 완료되었습니다!${
+              data.pickupDate && data.pickupDate !== "조율 중"
+                ? "<br><strong>회수 예정일: " + data.pickupDate + "</strong>"
+                : "<br>곧 택배 회수 일정을 안내해드립니다."
+            }`,
+            content:
+              currentStep === 5
+                ? `
+                        <div class="checklist">
+                            <div class="checklist-item">
+                                <input type="checkbox" id="check-packed">
+                                <label for="check-packed">스마트워치와 충전기를 박스에 담았습니다</label>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" id="check-ready">
+                                <label for="check-ready">택배 기사님 방문 준비 완료</label>
+                            </div>
+                        </div>
+                    `
+                : "",
+          },
+          {
+            state: currentStep >= 9 ? "completed" : "",
+            title: "완료! 🎉",
+            description:
+              "데이터 수집 프로젝트에 참여해주셔서 감사합니다!<br>귀하의 데이터는 수면 연구에 큰 도움이 될 것입니다.",
+            content:
+              currentStep >= 9
+                ? `
+                        <div class="alert alert-success">
+                            ✅ 모든 단계가 완료되었습니다. 소정의 참가비는 2-3일 내로 지급됩니다.
+                        </div>
+                    `
+                : "",
+          },
+        ];
+      }
+
+      // ===== 데이터 확인 처리 =====
+      async function handleDataCheck(answer) {
+        if (!currentUser) return;
+
+        if (answer === "no") {
+          alert(
+            "❌ 데이터 기록에 문제가 있는 것 같습니다.\n슬랙 채널에 문의해주세요.\n\n급한 경우: 010-4343-4195"
+          );
+          return;
+        }
+
+        if (!confirm("앱에 데이터가 4단계로 정상 기록된 것을 확인하셨나요?")) {
+          return;
+        }
+
+        try {
+          const response = await fetch(SCRIPT_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({
+              action: "updateStatus",
+              id: currentUser.id,
+              status: "데이터확인완료",
+            }),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            alert(
+              "✅ 데이터 확인이 완료되었습니다! 이제 데이터를 제출해주세요."
+            );
+            await refreshData();
+          } else {
+            alert("❌ 업데이트 실패: " + result.message);
+          }
+        } catch (error) {
+          alert("❌ 서버와 통신 중 오류가 발생했습니다.");
+          console.error(error);
+        }
+      }
+
+      // ===== 상태별 단계 번호 =====
+      function getStepNumber(status) {
+        const steps = {
+          대기중: 1,
+          슬랙참여: 1,
+          발송완료: 2,
+          수령확인필요: 2,
+          수령완료: 3,
+          연동대기: 3,
+          수집중: 4,
+          수집완료: 5,
+          데이터확인완료: 6,
+          데이터제출완료: 7,
+          매니저확인완료: 8,
+          회수대기: 8,
+          회수완료: 9,
+        };
+        return steps[status] || 1;
+      }
+
+      // ===== 상태 업데이트 =====
+      async function updateStatus(newStatus) {
+        if (!currentUser) return;
+
+        // 체크리스트 확인
+        if (!validateChecklist(newStatus)) {
+          alert("✋ 체크리스트를 모두 완료해주세요.");
+          return;
+        }
+
+        if (!confirm(`상태를 '${newStatus}'로 변경하시겠습니까?`)) {
+          return;
+        }
+
+        // 버튼 비활성화
+        const buttons = document.querySelectorAll(".btn");
+        buttons.forEach((btn) => (btn.disabled = true));
+
+        try {
+          const response = await fetch(SCRIPT_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({
+              action: "updateStatus",
+              id: currentUser.id,
+              status: newStatus,
+            }),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            alert("✅ 상태가 업데이트되었습니다!");
+            // 데이터 새로고침
+            await refreshData();
+          } else {
+            alert("❌ 업데이트 실패: " + result.message);
+          }
+        } catch (error) {
+          alert("❌ 서버와 통신 중 오류가 발생했습니다.");
+          console.error(error);
+        } finally {
+          buttons.forEach((btn) => (btn.disabled = false));
+        }
+      }
+
+      // ===== 데이터 새로고침 =====
+      async function refreshData() {
+        try {
+          const response = await fetch(SCRIPT_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({
+              action: "getParticipant",
+              id: currentUser.id,
+              name: currentUser.name,
+            }),
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            currentUser = result.data;
+            showProgress(result.data);
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      // ===== 측정일 업데이트 =====
+      async function updateMeasureDate() {
+        if (!currentUser) return;
+
+        const dateInput = document.getElementById("measure-date");
+        const selectedDate = dateInput.value;
+
+        if (!selectedDate) {
+          alert("📅 측정 예정일을 선택해주세요.");
+          return;
+        }
+
+        if (!confirm(`측정 예정일을 ${selectedDate}로 설정하시겠습니까?`)) {
+          return;
+        }
+
+        try {
+          const response = await fetch(SCRIPT_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({
+              action: "updateMeasureDate",
+              id: currentUser.id,
+              date: selectedDate,
+            }),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            alert("✅ 측정 예정일이 설정되었습니다!");
+            await refreshData();
+          } else {
+            alert("❌ 업데이트 실패: " + result.message);
+          }
+        } catch (error) {
+          alert("❌ 서버와 통신 중 오류가 발생했습니다.");
+          console.error(error);
+        }
+      }
+
+      // ===== 체크리스트 검증 =====
+      function validateChecklist(status) {
+        if (status === "수령완료") {
+          const check1 = document.getElementById("check-received");
+          const check2 = document.getElementById("check-contents");
+          return check1 && check2 && check1.checked && check2.checked;
+        }
+        if (status === "수집중") {
+          const check1 = document.getElementById("check-app-install");
+          const check2 = document.getElementById("check-device-sync");
+          const check3 = document.getElementById("check-data-visible");
+          return (
+            check1 &&
+            check2 &&
+            check3 &&
+            check1.checked &&
+            check2.checked &&
+            check3.checked
+          );
+        }
+        if (status === "데이터제출완료") {
+          const check1 = document.getElementById("check-guide-read");
+          const check2 = document.getElementById("check-data-submitted");
+          return check1 && check2 && check1.checked && check2.checked;
+        }
+        return true;
+      }
+
+      // ===== 가이드 열기 =====
+      function openGuide(type) {
+        // 실제 가이드 문서 링크로 변경
+        const guides = {
+          app: "https://docs.google.com/presentation/d/1UvG6Vl1lWJlcOITc3KmaJboFYnmo1FDiJ-nk9qrsrH8/edit?slide=id.g37e30063af9_0_89#slide=id.g37e30063af9_0_89",
+          check:
+            "https://docs.google.com/presentation/d/1UvG6Vl1lWJlcOITc3KmaJboFYnmo1FDiJ-nk9qrsrH8/edit?slide=id.g37e30063af9_0_231#slide=id.g37e30063af9_0_231",
+        };
+        if (guides[type]) {
+          window.open(guides[type], "_blank");
+        }
+      }
+
+      // ===== 상태별 색상 =====
+      function getStatusColor(status) {
+        const colors = {
+          대기중: "#6c757d",
+          슬랙참여: "#2196f3",
+          발송완료: "#ffa500",
+          수령완료: "#2196f3",
+          연동대기: "#ff6b6b",
+          수집중: "#4caf50",
+          수집완료: "#4caf50",
+          데이터확인완료: "#2196f3",
+          데이터제출완료: "#667eea",
+          매니저확인완료: "#4caf50",
+        };
+        return colors[status] || "#6c757d";
+      }
+
+      // ===== 에러 표시 =====
+      function showError(elementId, message) {
+        const errorDiv = document.getElementById(elementId);
+        errorDiv.textContent = "❌ " + message;
+        errorDiv.style.display = "block";
+      }
+
+      // ===== 로그아웃 =====
+      function logout() {
+        currentUser = null;
+        document.getElementById("login-card").style.display = "block";
+        document.getElementById("progress-card").style.display = "none";
+        document.getElementById("participant-id").value = "";
+        document.getElementById("participant-name").value = "";
+      }
+
+      // ===== URL 파라미터 자동 로그인 =====
+      window.onload = function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get("id");
+        const name = urlParams.get("name");
+
+        if (id && name) {
+          document.getElementById("participant-id").value = id;
+          document.getElementById("participant-name").value = name;
+          // 자동 로그인 원하면 login() 호출
+        }
+      };
+    </script>
+  </body>
+</html>

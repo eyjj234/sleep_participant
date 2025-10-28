@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>수면 데이터 수집 - 관리자 대시보드</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+          "Apple SD Gothic Neo", sans-serif;
+        background: #f5f7fa;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .header h1 {
+        font-size: 32px;
+        margin-bottom: 10px;
+      }
+
+      .header .subtitle {
+        font-size: 16px;
+        opacity: 0.9;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: transform 0.2s;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-4px);
+      }
+
+      .stat-card .label {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 8px;
+      }
+
+      .stat-card .value {
+        font-size: 36px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .stat-card.total {
+        border-left: 4px solid #667eea;
+      }
+      .stat-card.completed {
+        border-left: 4px solid #4caf50;
+      }
+      .stat-card.in-progress {
+        border-left: 4px solid #2196f3;
+      }
+      .stat-card.urgent {
+        border-left: 4px solid #ff6b6b;
+      }
+      .stat-card.devices {
+        border-left: 4px solid #ffa500;
+      }
+
+      .table-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        margin-bottom: 30px;
+      }
+
+      .table-header {
+        padding: 20px 25px;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .table-header h2 {
+        font-size: 20px;
+        color: #333;
+      }
+
+      .filter-group {
+        display: flex;
+        gap: 10px;
+      }
+
+      .filter-btn {
+        padding: 8px 16px;
+        border: 2px solid #e9ecef;
+        background: white;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.2s;
+      }
+
+      .filter-btn:hover {
+        border-color: #667eea;
+        color: #667eea;
+      }
+
+      .filter-btn.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      thead {
+        background: #f8f9fa;
+      }
+
+      th {
+        padding: 15px 20px;
+        text-align: left;
+        font-size: 13px;
+        font-weight: 600;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      td {
+        padding: 18px 20px;
+        border-top: 1px solid #e9ecef;
+        font-size: 14px;
+        color: #333;
+      }
+
+      tr:hover {
+        background: #f8f9fa;
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .status-대기중 {
+        background: #e9ecef;
+        color: #6c757d;
+      }
+      .status-슬랙참여 {
+        background: #e3f2fd;
+        color: #2196f3;
+      }
+      .status-발송완료 {
+        background: #fff3e0;
+        color: #ffa500;
+      }
+      .status-수령완료 {
+        background: #e3f2fd;
+        color: #2196f3;
+      }
+      .status-연동대기 {
+        background: #ffebee;
+        color: #ff6b6b;
+      }
+      .status-수집중 {
+        background: #e8f5e9;
+        color: #4caf50;
+      }
+      .status-수집완료 {
+        background: #e8f5e9;
+        color: #4caf50;
+      }
+      .status-데이터확인완료 {
+        background: #e3f2fd;
+        color: #2196f3;
+      }
+      .status-데이터제출완료 {
+        background: #ede7f6;
+        color: #667eea;
+      }
+      .status-매니저확인완료 {
+        background: #e8f5e9;
+        color: #4caf50;
+      }
+      .status-회수완료 {
+        background: #e0e0e0;
+        color: #333;
+      }
+
+      .priority-긴급 {
+        color: #ff6b6b;
+        font-weight: bold;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 80px 20px;
+        color: #666;
+      }
+
+      .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .refresh-btn {
+        padding: 10px 20px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.2s;
+      }
+
+      .refresh-btn:hover {
+        background: #5568d3;
+      }
+
+      .last-update {
+        font-size: 12px;
+        color: #999;
+        margin-top: 5px;
+      }
+
+      .action-cell {
+        color: #667eea;
+        font-weight: 500;
+      }
+
+      .search-box {
+        padding: 10px 15px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 14px;
+        width: 250px;
+      }
+
+      .search-box:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- 헤더 -->
+      <div class="header">
+        <h1>📊 관리자 대시보드</h1>
+        <p class="subtitle">참가자 진행 현황 실시간 모니터링</p>
+        <div class="last-update" id="last-update"></div>
+      </div>
+
+      <!-- 통계 카드 -->
+      <div class="stats-grid">
+        <div class="stat-card total">
+          <div class="label">전체 참가자</div>
+          <div class="value" id="stat-total">-</div>
+        </div>
+        <div class="stat-card completed">
+          <div class="label">완료</div>
+          <div class="value" id="stat-completed">-</div>
+        </div>
+        <div class="stat-card in-progress">
+          <div class="label">수집중</div>
+          <div class="value" id="stat-in-progress">-</div>
+        </div>
+        <div class="stat-card urgent">
+          <div class="label">긴급 처리</div>
+          <div class="value" id="stat-urgent">-</div>
+        </div>
+        <div class="stat-card devices">
+          <div class="label">사용 가능 기기</div>
+          <div class="value" id="stat-devices">-</div>
+        </div>
+      </div>
+
+      <!-- 참가자 테이블 -->
+      <div class="table-container">
+        <div class="table-header">
+          <h2>참가자 목록</h2>
+          <div style="display: flex; gap: 15px; align-items: center">
+            <input
+              type="text"
+              class="search-box"
+              id="search-box"
+              placeholder="참가자 ID 또는 이름 검색..."
+            />
+            <div class="filter-group">
+              <button class="filter-btn active" data-filter="all">전체</button>
+              <button class="filter-btn" data-filter="대기중">대기중</button>
+              <button class="filter-btn" data-filter="수집중">수집중</button>
+              <button class="filter-btn" data-filter="데이터제출완료">
+                제출완료
+              </button>
+              <button class="filter-btn" data-filter="긴급">긴급</button>
+            </div>
+            <button class="refresh-btn" onclick="loadData()">
+              🔄 새로고침
+            </button>
+          </div>
+        </div>
+
+        <div id="loading" class="loading">
+          <div class="loading-spinner"></div>
+          <p>데이터를 불러오는 중...</p>
+        </div>
+
+        <div id="table-wrapper" style="display: none">
+          <table>
+            <thead>
+              <tr>
+                <th>참가자 ID</th>
+                <th>이름</th>
+                <th>기기번호</th>
+                <th>현재상태</th>
+                <th>경과일수</th>
+                <th>우선순위</th>
+                <th>다음액션</th>
+              </tr>
+            </thead>
+            <tbody id="participant-table">
+              <!-- 동적으로 생성 -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ===== 설정 =====
+      const SCRIPT_URL =
+        "https://script.google.com/macros/s/AKfycbxkaLKygRzsMeWkqcZPmUqndmHtkAMcgl_yKOmrjsv0iDgxSiRct_LMehBg7w2c_QfJIQ/exec";
+
+      let allParticipants = [];
+      let currentFilter = "all";
+
+      // ===== 데이터 로드 =====
+      async function loadData() {
+        try {
+          const response = await fetch(SCRIPT_URL + "?page=manager");
+          const result = await response.json();
+
+          if (result.participants) {
+            allParticipants = result.participants;
+            updateStats(result.stats);
+            renderTable(allParticipants);
+            updateLastUpdate(result.lastUpdate);
+
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("table-wrapper").style.display = "block";
+          }
+        } catch (error) {
+          console.error("데이터 로드 실패:", error);
+          document.getElementById("loading").innerHTML =
+            '<p style="color: #ff6b6b;">❌ 데이터를 불러오는데 실패했습니다.</p>';
+        }
+      }
+
+      // ===== 통계 업데이트 =====
+      function updateStats(stats) {
+        document.getElementById("stat-total").textContent = stats.total || 0;
+        document.getElementById("stat-completed").textContent =
+          stats.completed || 0;
+        document.getElementById("stat-in-progress").textContent =
+          stats.inProgress || 0;
+        document.getElementById("stat-urgent").textContent = stats.urgent || 0;
+        document.getElementById("stat-devices").textContent =
+          stats.availableDevices || 0;
+      }
+
+      // ===== 테이블 렌더링 =====
+      function renderTable(participants) {
+        const tbody = document.getElementById("participant-table");
+        tbody.innerHTML = "";
+
+        if (participants.length === 0) {
+          tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #999;">
+                            표시할 참가자가 없습니다.
+                        </td>
+                    </tr>
+                `;
+          return;
+        }
+
+        participants.forEach((p) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+                    <td><strong>${p.id}</strong></td>
+                    <td>${p.name}</td>
+                    <td>${p.device || "-"}</td>
+                    <td><span class="status-badge status-${p.status}">${
+            p.status
+          }</span></td>
+                    <td>${p.daysElapsed}일</td>
+                    <td class="${
+                      p.priority === "긴급" ? "priority-긴급" : ""
+                    }">${p.priority}</td>
+                    <td class="action-cell">${p.action}</td>
+                `;
+          tbody.appendChild(row);
+        });
+      }
+
+      // ===== 마지막 업데이트 시간 =====
+      function updateLastUpdate(timestamp) {
+        const date = new Date(timestamp);
+        const formatted = date.toLocaleString("ko-KR");
+        document.getElementById(
+          "last-update"
+        ).textContent = `마지막 업데이트: ${formatted}`;
+      }
+
+      // ===== 필터링 =====
+      function filterParticipants(filter) {
+        currentFilter = filter;
+
+        let filtered = allParticipants;
+
+        if (filter === "긴급") {
+          filtered = allParticipants.filter((p) => p.priority === "긴급");
+        } else if (filter !== "all") {
+          filtered = allParticipants.filter((p) => p.status === filter);
+        }
+
+        renderTable(filtered);
+      }
+
+      // ===== 검색 =====
+      function searchParticipants(query) {
+        if (!query) {
+          filterParticipants(currentFilter);
+          return;
+        }
+
+        const filtered = allParticipants.filter(
+          (p) =>
+            p.id.toLowerCase().includes(query.toLowerCase()) ||
+            p.name.includes(query)
+        );
+
+        renderTable(filtered);
+      }
+
+      // ===== 이벤트 리스너 =====
+      document.addEventListener("DOMContentLoaded", function () {
+        loadData();
+
+        // 필터 버튼
+        document.querySelectorAll(".filter-btn").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            document
+              .querySelectorAll(".filter-btn")
+              .forEach((b) => b.classList.remove("active"));
+            this.classList.add("active");
+            filterParticipants(this.dataset.filter);
+          });
+        });
+
+        // 검색
+        document
+          .getElementById("search-box")
+          .addEventListener("input", function (e) {
+            searchParticipants(e.target.value);
+          });
+
+        // 자동 새로고침 (5분마다)
+        setInterval(loadData, 5 * 60 * 1000);
+      });
+    </script>
+  </body>
+</html>
