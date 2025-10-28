@@ -118,22 +118,28 @@ function updateParticipantStatus(data) {
         sheet.getRange(row, 7).setValue(today); // G열 (연동완료일)
         sheet.getRange(row, 8).setValue(today); // H열 (수집시작일)
 
-        // 수집 종료일 = 시작일 + 7일
+        // 수집 종료일 = 시작일 + 1일
         var endDate = new Date(today);
-        endDate.setDate(endDate.getDate() + 7);
+        endDate.setDate(endDate.getDate() + 1);
         sheet.getRange(row, 9).setValue(endDate); // I열 (수집종료예정일)
 
         sendNotificationToManager(
           data.id,
           sheetData[i][1],
-          "기기 연동을 완료하고 수집을 시작했습니다."
+          "기기 연동을 완료하고 측정을 시작했습니다."
         );
       } else if (data.status === "수집완료") {
         sheet.getRange(row, 10).setValue(today); // J열 (데이터확인일)
         sendNotificationToManager(
           data.id,
           sheetData[i][1],
-          "7일 수집을 완료했습니다. 회수 준비가 필요합니다."
+          "측정을 완료했습니다. 데이터 확인 단계입니다."
+        );
+      } else if (data.status === "회수대기") {
+        sendNotificationToManager(
+          data.id,
+          sheetData[i][1],
+          "반납 준비가 완료되었습니다. 택배 회수 일정을 안내해주세요."
         );
       }
 
@@ -458,10 +464,10 @@ function 일일체크() {
       sheet.getRange(i + 1, 13).setValue("긴급");
     }
 
-    // 수집 7일차 - 자동으로 수집완료로 변경하지 않음 (참가자가 직접 업데이트)
-    if (현재상태 === "수집중" && 경과일수 >= 7) {
+    // 측정 완료 확인 - 자동으로 수집완료로 변경하지 않음 (참가자가 직접 업데이트)
+    if (현재상태 === "수집중" && 경과일수 >= 3) {
       주의알림목록.push(
-        `📦 ${이름} (${참가자ID}) - 수집 7일차 도달. 참가자 확인 필요`
+        `📦 ${이름} (${참가자ID}) - 측정 예정일로부터 ${경과일수}일 경과. 참가자 확인 필요`
       );
     }
   }
