@@ -1252,7 +1252,7 @@
           const check2 = document.getElementById("check-contents");
           return check1 && check2 && check1.checked && check2.checked;
         }
-        if (status === "수집중") {
+        if (status === "연동완료") {
           const check1 = document.getElementById("check-app-install");
           const check2 = document.getElementById("check-device-sync");
           const check3 = document.getElementById("check-data-visible");
@@ -1264,6 +1264,10 @@
             check2.checked &&
             check3.checked
           );
+        }
+        if (status === "수집중") {
+          // 수집중은 날짜 선택 후 자동으로 전환되므로 체크리스트 불필요
+          return true;
         }
         if (status === "데이터확인완료") {
           return true; // 버튼 클릭으로 처리
