@@ -139,17 +139,24 @@ function updateParticipantStatus(data) {
         sendNotificationToManager(
           data.id,
           sheetData[i][1],
-          "데이터 확인을 완료했습니다. 데이터 제출 대기 중입니다."
+          "데이터 확인을 완료했습니다. 설문 작성 대기 중입니다."
+        );
+      } else if (data.status === "설문완료") {
+        sheet.getRange(row, 11).setValue(today); // K열 (설문완료일)
+        sendNotificationToManager(
+          data.id,
+          sheetData[i][1],
+          "설문을 완료했습니다. 데이터 제출 대기 중입니다."
         );
       } else if (data.status === "데이터제출완료") {
-        sheet.getRange(row, 11).setValue(today); // K열 (데이터제출일)
+        sheet.getRange(row, 12).setValue(today); // L열 (데이터제출일)
         sendNotificationToManager(
           data.id,
           sheetData[i][1],
           "데이터를 제출했습니다. 매니저 확인이 필요합니다."
         );
       } else if (data.status === "매니저확인완료") {
-        sheet.getRange(row, 12).setValue(today); // L열 (매니저확인일)
+        sheet.getRange(row, 13).setValue(today); // M열 (매니저확인일)
         sendNotificationToManager(
           data.id,
           sheetData[i][1],

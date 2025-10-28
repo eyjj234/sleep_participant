@@ -114,11 +114,38 @@
         border-radius: 12px;
         margin-bottom: 25px;
         color: white;
+        position: sticky;
+        top: 20px;
+        z-index: 100;
+        box-shadow: 0 4px 0 rgba(0, 0, 0, 1);
       }
 
       .user-info h2 {
         font-size: 22px;
         margin-bottom: 15px;
+      }
+
+      .guide-banner {
+        background: #ffeb3b;
+        border: 2px solid #000000;
+        padding: 16px 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .guide-banner a {
+        color: #000000;
+        font-weight: bold;
+        font-size: 15px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .guide-banner a:hover {
+        text-decoration: underline;
       }
 
       .user-info .info-grid {
@@ -521,6 +548,12 @@
           <!-- 동적으로 생성 -->
         </div>
 
+        <div class="guide-banner">
+          <a href="https://docs.google.com/presentation/d/1UvG6Vl1lWJlcOITc3KmaJboFYnmo1FDiJ-nk9qrsrH8/edit?slide=id.p#slide=id.p" target="_blank">
+            📖 전체 수집 가이드를 읽고 진행해주세요 →
+          </a>
+        </div>
+
         <div id="current-alert" style="display: none">
           <!-- 동적으로 생성 -->
         </div>
@@ -544,7 +577,9 @@
             "
           >
             💬 슬랙 채널에서 문의 (우선)<br />
-            <span style="font-size: 15px; color: #666; font-weight: normal;">(급한 경우 📞 010-4343-4195)</span>
+            <span style="font-size: 15px; color: #666; font-weight: normal"
+              >(급한 경우 📞 010-4343-4195)</span
+            >
           </p>
         </div>
 
@@ -633,12 +668,14 @@
         const statusColor = getStatusColor(data.status);
 
         document.getElementById("user-info").innerHTML = `
-                <h2>${data.name}님, 환영합니다! 👋</h2>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <div class="label">참가자 ID</div>
-                        <div class="value">${data.id}</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h2 style="margin: 0;">${data.name}님, 환영합니다! 👋</h2>
+                    <div style="text-align: right;">
+                        <div style="font-size: 14px; opacity: 0.8;">참가자 ID</div>
+                        <div style="font-size: 20px; font-weight: bold;">${data.id}</div>
                     </div>
+                </div>
+                <div class="info-grid">
                     <div class="info-item">
                         <div class="label">배정 기기</div>
                         <div class="value">${data.device}</div>
@@ -648,18 +685,6 @@
                         <div class="value"><span class="status-badge" style="color: ${statusColor}">${
           data.status
         }</span></div>
-                    </div>
-                    <div class="info-item">
-                        <div class="label">${
-                          data.status === "수집중" ? "측정 상태" : "진행 경과"
-                        }</div>
-                        <div class="value">${
-                          data.status === "수집중"
-                            ? data.collectDays >= 1
-                              ? "완료"
-                              : "대기중"
-                            : data.daysElapsed + "일"
-                        }</div>
                     </div>
                 </div>
             `;
@@ -865,7 +890,13 @@
                                 </div>
                                 <div style="text-align: center; padding: 20px; background: white; border-radius: 10px;">
                                     <div style="font-size: 48px; margin-bottom: 10px;">
-                                        ${data.status === "수집완료" ? "✅" : data.collectDays >= 1 ? "🎯" : "😴"}
+                                        ${
+                                          data.status === "수집완료"
+                                            ? "✅"
+                                            : data.collectDays >= 1
+                                            ? "🎯"
+                                            : "😴"
+                                        }
                                     </div>
                                     <div style="font-size: 16px; color: #666;">
                                         ${
@@ -932,14 +963,52 @@
           {
             state:
               currentStep > 6 ? "completed" : currentStep === 6 ? "active" : "",
-            title: "6단계: 데이터 제출",
-            description:
-              "확인하신 데이터를 연구팀에 제출해주세요.",
+            title: "6단계: 설문 작성",
+            description: "수면 데이터 수집 후 설문조사에 참여해주세요.",
             content:
               currentStep === 6
                 ? `
                         <div class="alert alert-success" style="margin-bottom: 20px;">
-                            🎉 데이터 확인이 완료되었습니다! 이제 데이터를 제출해주세요.
+                            🎉 데이터 확인이 완료되었습니다! 설문 작성을 부탁드립니다.
+                        </div>
+                        
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 12px; border: 2px solid #000000; margin-bottom: 20px;">
+                            <p style="font-weight: bold; margin-bottom: 12px; color: #333;">
+                                📝 설문 작성 (약 5-10분 소요)
+                            </p>
+                            <p style="font-size: 14px; color: #666; margin-bottom: 16px;">
+                                아래 링크를 클릭하여 Google Form에서 설문을 작성해주세요.
+                            </p>
+                            <a href="https://docs.google.com/forms/d/1bYBF37q9ZE6Kkn3_NPYD-yDbLJvZK4jsWdYZC40w3wA/viewform" 
+                               target="_blank"
+                               style="display: inline-block; background: #ffeb3b; color: #000000; padding: 12px 24px; text-decoration: none; border-radius: 8px; border: 2px solid #000000; font-weight: bold; margin-bottom: 16px;">
+                                📋 설문 작성하러 가기 →
+                            </a>
+                        </div>
+                        
+                        <div class="checklist">
+                            <div class="checklist-item">
+                                <input type="checkbox" id="check-survey-done">
+                                <label for="check-survey-done">설문 작성을 완료했습니다</label>
+                            </div>
+                        </div>
+                        
+                        <div class="action-button">
+                            <button class="btn" onclick="updateStatus('설문완료')">✓ 설문 제출 완료</button>
+                        </div>
+                    `
+                : "",
+          },
+          {
+            state:
+              currentStep > 7 ? "completed" : currentStep === 7 ? "active" : "",
+            title: "7단계: 데이터 제출",
+            description: "수집된 데이터를 연구팀에 제출합니다.",
+            content:
+              currentStep === 7
+                ? `
+                        <div class="alert alert-success" style="margin-bottom: 20px;">
+                            🎉 설문이 완료되었습니다! 이제 데이터를 제출해주세요.
                         </div>
                         
                         <div class="checklist">
@@ -957,12 +1026,12 @@
           },
           {
             state:
-              currentStep > 7 ? "completed" : currentStep === 7 ? "active" : "",
-            title: "7단계: 매니저 데이터 확인",
+              currentStep > 8 ? "completed" : currentStep === 8 ? "active" : "",
+            title: "8단계: 매니저 데이터 확인",
             description:
               "매니저가 제출된 데이터를 검토 중입니다. 잠시만 기다려주세요.",
             content:
-              currentStep === 7
+              currentStep === 8
                 ? `
                         <div class="alert alert-info">
                             ⏳ 매니저가 데이터를 확인하는 중입니다...<br>
@@ -973,15 +1042,15 @@
           },
           {
             state:
-              currentStep > 8 ? "completed" : currentStep === 8 ? "active" : "",
-            title: "8단계: 기기 반납 준비",
+              currentStep > 9 ? "completed" : currentStep === 9 ? "active" : "",
+            title: "9단계: 기기 반납 준비",
             description: `데이터 제출이 완료되었습니다!${
               data.pickupDate && data.pickupDate !== "조율 중"
                 ? "<br><strong>회수 예정일: " + data.pickupDate + "</strong>"
                 : "<br>곧 택배 회수 일정을 안내해드립니다."
             }`,
             content:
-              currentStep === 8
+              currentStep === 9
                 ? `
                         <div class="checklist">
                             <div class="checklist-item">
@@ -1000,12 +1069,12 @@
                 : "",
           },
           {
-            state: currentStep >= 9 ? "completed" : "",
-            title: "9단계: 완료! 🎉",
+            state: currentStep >= 10 ? "completed" : "",
+            title: "10단계: 완료! 🎉",
             description:
               "데이터 수집 프로젝트에 참여해주셔서 감사합니다!<br>귀하의 데이터는 수면 연구에 큰 도움이 될 것입니다.",
             content:
-              currentStep >= 9
+              currentStep >= 10
                 ? `
                         <div class="alert alert-success">
                             ✅ 모든 단계가 완료되었습니다. 소정의 참가비는 2-3일 내로 지급됩니다.
@@ -1028,10 +1097,11 @@
           수집중: 4,
           수집완료: 5,
           데이터확인완료: 6,
-          데이터제출완료: 7,
-          매니저확인완료: 8,
-          회수대기: 8,
-          회수완료: 9,
+          설문완료: 7,
+          데이터제출완료: 8,
+          매니저확인완료: 9,
+          회수대기: 9,
+          회수완료: 10,
         };
         return steps[status] || 1;
       }
@@ -1042,10 +1112,12 @@
 
         if (isOk) {
           // 데이터가 정상인 경우 -> 데이터확인완료 상태로 변경
-          await updateStatus('데이터확인완료');
+          await updateStatus("데이터확인완료");
         } else {
           // 문제가 있는 경우 -> 슬랙으로 문의 안내
-          alert('❗️ 슬랙에서 매니저에게 문의해주세요.\n\n문제 상황을 자세히 알려주시면 빠르게 도와드리겠습니다.');
+          alert(
+            "❗️ 슬랙에서 매니저에게 문의해주세요.\n\n문제 상황을 자세히 알려주시면 빠르게 도와드리겠습니다."
+          );
         }
       }
 
@@ -1060,8 +1132,11 @@
         }
 
         // 데이터확인완료는 confirm 없이 바로 진행
-        const skipConfirm = newStatus === '데이터확인완료';
-        if (!skipConfirm && !confirm(`상태를 '${newStatus}'로 변경하시겠습니까?`)) {
+        const skipConfirm = newStatus === "데이터확인완료";
+        if (
+          !skipConfirm &&
+          !confirm(`상태를 '${newStatus}'로 변경하시겠습니까?`)
+        ) {
           return;
         }
 
@@ -1183,6 +1258,10 @@
         }
         if (status === "데이터확인완료") {
           return true; // 버튼 클릭으로 처리
+        }
+        if (status === "설문완료") {
+          const check1 = document.getElementById("check-survey-done");
+          return check1 && check1.checked;
         }
         if (status === "데이터제출완료") {
           const check1 = document.getElementById("check-data-consent");
