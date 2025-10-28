@@ -774,6 +774,7 @@
       // ===== 타임라인 단계 생성 =====
       function getTimelineSteps(data) {
         const currentStep = getStepNumber(data.status);
+        console.log(`[getTimelineSteps] 상태: ${data.status}, 단계: ${currentStep}`);
 
         return [
           {
@@ -809,8 +810,15 @@
                 : "",
           },
           {
-            state:
-              currentStep > 3 || data.status === "연동완료" ? "completed" : currentStep === 3 ? "active" : "",
+            state: (() => {
+              const state3 = currentStep > 3 || data.status === "연동완료"
+                ? "completed"
+                : currentStep === 3
+                ? "active"
+                : "";
+              console.log(`[3단계] currentStep=${currentStep}, status=${data.status}, state=${state3}`);
+              return state3;
+            })(),
             title: "3단계: 앱 설치 및 기기 연동",
             description: "스마트워치 앱을 설치하고 기기를 연동해주세요.",
             content:
@@ -847,8 +855,15 @@
                 : "",
           },
           {
-            state:
-              currentStep > 4 ? "completed" : (currentStep === 4 || data.status === "연동완료") ? "active" : "",
+            state: (() => {
+              const state4 = currentStep > 4
+                ? "completed"
+                : currentStep === 4 || data.status === "연동완료"
+                ? "active"
+                : "";
+              console.log(`[4단계] currentStep=${currentStep}, status=${data.status}, state=${state4}`);
+              return state4;
+            })(),
             title: "4단계: 데이터 측정 (1일)",
             description: `스마트워치를 착용하고 하루 밤 수면을 측정해주세요.${
               data.collectStartDate
@@ -858,7 +873,7 @@
                 : "<br><span style='color: #ff6b6b;'>⚠️ 연동 후 1-2일 내 측정 부탁드립니다!</span>"
             }`,
             content:
-              (currentStep === 4 || data.status === "연동완료")
+              currentStep === 4 || data.status === "연동완료"
                 ? `
                         <div style="background: #ffeb3b; padding: 20px; border-radius: 12px; border: 2px solid #000000; margin-bottom: 20px;">
                             <label style="display: block; font-weight: bold; margin-bottom: 8px; color: #000;">
@@ -1184,6 +1199,7 @@
       // ===== 데이터 새로고침 =====
       async function refreshData() {
         try {
+          console.log("=== refreshData 시작 ===");
           const response = await fetch(SCRIPT_URL, {
             method: "POST",
             headers: { "Content-Type": "text/plain" },
@@ -1195,12 +1211,16 @@
           });
 
           const result = await response.json();
+          console.log("서버 응답:", result);
+          
           if (result.success) {
+            console.log("현재 상태:", result.data.status);
             currentUser = result.data;
             showProgress(result.data);
+            console.log("=== UI 업데이트 완료 ===");
           }
         } catch (error) {
-          console.error(error);
+          console.error("refreshData 에러:", error);
         }
       }
 
