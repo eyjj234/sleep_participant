@@ -1017,14 +1017,12 @@
             state:
               currentStep > 7 ? "completed" : currentStep === 7 ? "active" : "",
             title: "7단계: 매니저 데이터 확인",
-            description:
-              "매니저가 제출된 데이터를 검토 중입니다. 잠시만 기다려주세요.",
+            description: "제출된 데이터를 검토 중입니다.",
             content:
               currentStep === 7
                 ? `
                         <div class="alert alert-info">
-                            ⏳ 매니저가 데이터를 확인하는 중입니다...<br>
-                            완료되면 자동으로 다음 단계로 진행됩니다.
+                            ⏳ 매니저가 데이터를 확인하는 중입니다. 완료되면 자동으로 다음 단계로 진행됩니다.
                         </div>
                     `
                 : "",

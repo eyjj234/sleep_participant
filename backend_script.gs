@@ -160,7 +160,24 @@ function updateParticipantStatus(data) {
           "데이터 확인을 완료했습니다. 데이터 제출 대기 중입니다."
         );
       } else if (data.status === "데이터제출완료") {
+        // 디버깅: 헤더 확인
+        var headerRow = sheet
+          .getRange(1, 1, 1, sheet.getLastColumn())
+          .getValues()[0];
+        Logger.log("=== 데이터제출완료 디버깅 ===");
+        Logger.log("10번 열(J열) 헤더: " + headerRow[9]); // 배열은 0부터 시작
+        Logger.log("11번 열(K열) 헤더: " + headerRow[10]);
+        Logger.log("현재 행 번호: " + row);
+
         sheet.getRange(row, 10).setValue(today); // J열 (데이터제출일)
+        Logger.log("✓ J열(10번)에 날짜 기록: " + today);
+
+        // 저장 확인
+        var savedCol10 = sheet.getRange(row, 10).getValue();
+        var savedCol11 = sheet.getRange(row, 11).getValue();
+        Logger.log("저장 후 10번 열 값: " + savedCol10);
+        Logger.log("저장 후 11번 열 값: " + savedCol11);
+
         sendNotificationToManager(
           data.id,
           sheetData[i][1],
