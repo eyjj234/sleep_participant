@@ -211,21 +211,27 @@ function getManagerData() {
 function getDeviceStatus() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var deviceSheet = ss.getSheetByName("기기현황");
-  
+
   // 기기현황 시트가 없으면 생성
   if (!deviceSheet) {
     deviceSheet = ss.insertSheet("기기현황");
-    deviceSheet.appendRow(["기기번호", "현재상태", "현재사용자", "사용시작일", "예상반환일"]);
-    
+    deviceSheet.appendRow([
+      "기기번호",
+      "현재상태",
+      "현재사용자",
+      "사용시작일",
+      "예상반환일",
+    ]);
+
     // 기본 10대 기기 데이터 생성
     for (var i = 1; i <= 10; i++) {
       deviceSheet.appendRow([i, "사용가능", "-", "", ""]);
     }
   }
-  
+
   var deviceData = deviceSheet.getDataRange().getValues();
   var devices = [];
-  
+
   for (var i = 1; i < deviceData.length; i++) {
     var device = {
       number: deviceData[i][0],
@@ -236,7 +242,7 @@ function getDeviceStatus() {
     };
     devices.push(device);
   }
-  
+
   return devices;
 }
 
