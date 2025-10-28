@@ -118,11 +118,11 @@ function updateParticipantStatus(data) {
         Logger.log("참가자 ID: " + data.id);
         Logger.log("행 번호: " + row);
         Logger.log("오늘 날짜: " + today);
-        
+
         try {
           sheet.getRange(row, 7).setValue(today); // G열 (연동완료일)
           Logger.log("✓ G열(연동완료일) 기록 완료");
-          
+
           // 저장 확인
           var savedValue = sheet.getRange(row, 7).getValue();
           Logger.log("저장된 값 확인: " + savedValue);
