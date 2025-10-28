@@ -323,6 +323,11 @@
         background: #fff8f0;
       }
 
+      .device-card.repair {
+        border-color: #ff6b6b;
+        background: #fff5f5;
+      }
+
       .device-number {
         font-size: 32px;
         font-weight: bold;
@@ -346,6 +351,11 @@
 
       .device-status.in-use {
         background: #ff9800;
+        color: white;
+      }
+
+      .device-status.repair {
+        background: #ff6b6b;
         color: white;
       }
 
@@ -527,18 +537,32 @@
 
         grid.className = "device-grid";
         grid.innerHTML = devices.map(device => {
-          const isAvailable = device.status === "사용가능";
-          const statusClass = isAvailable ? "available" : "in-use";
-          const statusText = isAvailable ? "사용 가능" : "사용 중";
+          let statusClass = "available";
+          let statusText = "사용 가능";
+          
+          if (device.status === "사용중") {
+            statusClass = "in-use";
+            statusText = "사용 중";
+          } else if (device.status === "수리중") {
+            statusClass = "repair";
+            statusText = "수리 중";
+          }
+
+          const showDetails = device.status === "사용중";
+          const showRepairInfo = device.status === "수리중";
 
           return `
             <div class="device-card ${statusClass}">
               <div class="device-number">#${device.number}</div>
               <div class="device-status ${statusClass}">${statusText}</div>
-              ${!isAvailable ? `
+              ${showDetails ? `
                 <div class="device-user">👤 ${device.currentUser}</div>
                 <div class="device-date">📅 ${device.startDate}</div>
                 <div class="device-date">🔙 ${device.returnDate}</div>
+              ` : showRepairInfo ? `
+                <div class="device-user">🔧 수리 중</div>
+                <div class="device-date">${device.currentUser !== '-' ? device.currentUser : '점검/수리'}</div>
+                <div style="height: 20px;"></div>
               ` : '<div style="height: 60px;"></div>'}
             </div>
           `;
