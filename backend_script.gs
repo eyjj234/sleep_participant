@@ -278,39 +278,73 @@ function getManagerData() {
 // ========================================
 function getDeviceStatus() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
+  
+  // 진행현황 시트에서 기기 사용 정보 가져오기
+  var progressSheet = ss.getSheetByName("진행현황");
+  var progressData = progressSheet.getDataRange().getValues();
+  
+  // 기기현황 시트 (수리중 등 특수 상태 관리용)
   var deviceSheet = ss.getSheetByName("기기현황");
-
-  // 기기현황 시트가 없으면 생성
-  if (!deviceSheet) {
-    deviceSheet = ss.insertSheet("기기현황");
-    deviceSheet.appendRow([
-      "기기번호",
-      "현재상태",
-      "현재사용자",
-      "사용시작일",
-      "예상반환일",
-    ]);
-
-    // 기본 10대 기기 데이터 생성
-    for (var i = 1; i <= 10; i++) {
-      deviceSheet.appendRow([i, "사용가능", "-", "", ""]);
+  var manualOverrides = {}; // 수동으로 설정된 특수 상태
+  
+  // 기기현황 시트가 있으면 특수 상태만 읽음
+  if (deviceSheet) {
+    var deviceData = deviceSheet.getDataRange().getValues();
+    for (var i = 1; i < deviceData.length; i++) {
+      var deviceNum = deviceData[i][0];
+      var manualStatus = deviceData[i][1];
+      // "수리중"처럼 수동으로 설정된 특수 상태만 저장
+      if (manualStatus === "수리중") {
+        manualOverrides[deviceNum] = manualStatus;
+      }
     }
   }
-
-  var deviceData = deviceSheet.getDataRange().getValues();
+  
+  // 기기 1~10번의 사용 현황을 진행현황에서 자동 계산
+  var deviceMap = {}; // 기기번호 -> 사용자 정보
+  
+  for (var i = 1; i < progressData.length; i++) {
+    var deviceNum = progressData[i][2]; // C열: 기기번호
+    var status = progressData[i][3]; // D열: 현재상태
+    var name = progressData[i][1]; // B열: 이름
+    var id = progressData[i][0]; // A열: 참가자ID
+    var receiveDate = progressData[i][5]; // F열: 수령일
+    
+    // 기기가 할당되어 있고, 아직 회수 전이면 "사용중"
+    if (deviceNum && deviceNum !== "-" && status !== "회수완료" && status !== "대기중") {
+      deviceMap[deviceNum] = {
+        user: name || id,
+        status: status,
+        startDate: formatDate(receiveDate)
+      };
+    }
+  }
+  
+  // 1~10번 기기 상태 생성
   var devices = [];
-
-  for (var i = 1; i < deviceData.length; i++) {
+  for (var i = 1; i <= 10; i++) {
     var device = {
-      number: deviceData[i][0],
-      status: deviceData[i][1] || "사용가능",
-      currentUser: deviceData[i][2] || "-",
-      startDate: formatDate(deviceData[i][3]) || "-",
-      returnDate: formatDate(deviceData[i][4]) || "-",
+      number: i,
+      status: "사용가능",
+      currentUser: "-",
+      startDate: "-",
+      returnDate: "-"
     };
+    
+    // 수동 설정된 특수 상태 (수리중 등)가 있으면 적용
+    if (manualOverrides[i]) {
+      device.status = manualOverrides[i];
+    }
+    // 진행현황에서 사용중인 기기면 "사용중"으로 변경
+    else if (deviceMap[i]) {
+      device.status = "사용중";
+      device.currentUser = deviceMap[i].user;
+      device.startDate = deviceMap[i].startDate;
+    }
+    
     devices.push(device);
   }
-
+  
   return devices;
 }
 
