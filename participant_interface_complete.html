@@ -883,8 +883,7 @@
             content:
               currentStep === 4 || data.status === "연동완료"
                 ? `
-                        <a href="#" class="guide-link" onclick="openGuide('collect'); return false;">📖 데이터 수집 유의사항 및 수집 방법 보기 →</a>
-                        <div style="background: #ffeb3b; padding: 20px; border-radius: 12px; border: 2px solid #000000; margin-bottom: 20px; margin-top: 16px;">
+                        <div style="background: #ffeb3b; padding: 20px; border-radius: 12px; border: 2px solid #000000; margin-bottom: 20px;">
                             <label style="display: block; font-weight: bold; margin-bottom: 8px; color: #000;">
                                 📅 수면 측정 날짜 선택
                             </label>
@@ -942,7 +941,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <a href="#" class="guide-link" onclick="openGuide('check'); return false;">🔍 데이터 확인 방법 보기 →</a>
+                            <a href="#" class="guide-link" onclick="openGuide('collect'); return false;">📖 데이터 수집 유의사항 및 수집 방법 보기 →</a>
                         `
                             : ""
                         }
