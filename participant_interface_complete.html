@@ -993,8 +993,11 @@
             content:
               currentStep === 6
                 ? `
-                        <div class="alert alert-success" style="margin-bottom: 20px;">
-                            🎉 데이터 확인이 완료되었습니다! 이제 데이터를 제출해주세요.
+                        <a href="#" class="guide-link" onclick="openGuide('submit'); return false;">📤 데이터 제출 가이드 보기 →</a>
+                        
+                        <div class="alert alert-info" style="margin-top: 16px; margin-bottom: 20px;">
+                            📧 아래 가이드 링크에 따라 데이터를 이메일 <strong>fitbitletsur@gmail.com</strong>로 제출해주세요.<br>
+                            <span style="font-size: 14px; color: #666;">(이메일제목: ID, 이름)</span>
                         </div>
                         
                         <div class="checklist">
@@ -1005,7 +1008,7 @@
                         </div>
                         
                         <div class="action-button">
-                            <button class="btn" onclick="updateStatus('데이터제출완료')">✓ 데이터 제출하기</button>
+                            <button class="btn" onclick="updateStatus('데이터제출완료')">✓ 데이터 제출 완료</button>
                         </div>
                     `
                 : "",
@@ -1318,6 +1321,8 @@
           collect:
             "https://docs.google.com/presentation/d/1UvG6Vl1lWJlcOITc3KmaJboFYnmo1FDiJ-nk9qrsrH8/edit?slide=id.g37e30063af9_0_179#slide=id.g37e30063af9_0_179",
           check:
+            "https://docs.google.com/presentation/d/1UvG6Vl1lWJlcOITc3KmaJboFYnmo1FDiJ-nk9qrsrH8/edit?slide=id.g39cbceb4fdd_1_7#slide=id.g39cbceb4fdd_1_7",
+          submit:
             "https://docs.google.com/presentation/d/1UvG6Vl1lWJlcOITc3KmaJboFYnmo1FDiJ-nk9qrsrH8/edit?slide=id.g37e30063af9_0_231#slide=id.g37e30063af9_0_231",
         };
         if (guides[type]) {
