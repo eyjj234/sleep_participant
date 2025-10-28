@@ -1070,14 +1070,18 @@
             state:
               currentStep > 9 ? "completed" : currentStep === 9 ? "active" : "",
             title: "9단계: 기기 반납 준비",
-            description: `데이터 제출이 완료되었습니다!${
+            description: `설문이 완료되었습니다! 이제 기기를 반납해주세요.${
               data.pickupDate && data.pickupDate !== "조율 중"
                 ? "<br><strong>회수 예정일: " + data.pickupDate + "</strong>"
-                : "<br>곧 택배 회수 일정을 안내해드립니다."
+                : ""
             }`,
             content:
               currentStep === 9
                 ? `
+                        <div class="alert alert-success" style="margin-bottom: 20px;">
+                            🎉 설문 제출이 완료되었습니다! 아래 안내에 따라 기기를 반납해주세요.
+                        </div>
+                        
                         <div class="checklist">
                             <div class="checklist-item">
                                 <input type="checkbox" id="check-packed">
@@ -1095,12 +1099,31 @@
                 : "",
           },
           {
-            state: currentStep >= 10 ? "completed" : "",
-            title: "10단계: 완료! 🎉",
+            state:
+              currentStep > 10 ? "completed" : currentStep === 10 ? "active" : "",
+            title: "10단계: 기기 회수 대기",
+            description: `반납 준비가 완료되었습니다!${
+              data.pickupDate && data.pickupDate !== "조율 중"
+                ? "<br><strong>회수 예정일: " + data.pickupDate + "</strong>"
+                : "<br>곧 택배 회수 일정을 안내해드립니다."
+            }`,
+            content:
+              currentStep === 10
+                ? `
+                        <div class="alert alert-info">
+                            📦 택배 기사님의 방문을 기다려주세요.<br>
+                            회수가 완료되면 자동으로 다음 단계로 진행됩니다.
+                        </div>
+                    `
+                : "",
+          },
+          {
+            state: currentStep >= 11 ? "completed" : "",
+            title: "11단계: 완료! 🎉",
             description:
               "데이터 수집 프로젝트에 참여해주셔서 감사합니다!<br>귀하의 데이터는 수면 연구에 큰 도움이 될 것입니다.",
             content:
-              currentStep >= 10
+              currentStep >= 11
                 ? `
                         <div class="alert alert-success">
                             ✅ 모든 단계가 완료되었습니다. 소정의 참가비는 2-3일 내로 지급됩니다.
@@ -1127,8 +1150,8 @@
           데이터제출완료: 7,
           매니저확인완료: 8,
           설문완료: 9,
-          회수대기: 9,
-          회수완료: 10,
+          회수대기: 10,
+          회수완료: 11,
         };
         return steps[status] || 1;
       }
