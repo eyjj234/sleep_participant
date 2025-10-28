@@ -72,10 +72,9 @@ function getParticipantInfo(participantId, name) {
         receiveDate: formatDate(data[i][5]),
         syncDate: formatDate(data[i][6]),
         collectStartDate: formatDate(data[i][7]),
-        collectEndDate: formatDate(data[i][8]),
         daysElapsed: calculateDaysElapsed(data[i][4]),
         collectDays: calculateCollectDays(data[i][7]),
-        pickupDate: formatDate(data[i][10]) || "조율 중",
+        pickupDate: formatDate(data[i][9]) || "조율 중", // I→I 위치 변경 없음 (수집종료예정일 제거로 한 칸 앞당겨짐)
       };
 
       return createResponse(true, "정보를 가져왔습니다.", participant);
@@ -118,11 +117,6 @@ function updateParticipantStatus(data) {
         sheet.getRange(row, 7).setValue(today); // G열 (연동완료일)
         sheet.getRange(row, 8).setValue(today); // H열 (수집시작일)
 
-        // 수집 종료일 = 시작일 + 1일
-        var endDate = new Date(today);
-        endDate.setDate(endDate.getDate() + 1);
-        sheet.getRange(row, 9).setValue(endDate); // I열 (수집종료예정일)
-
         sendNotificationToManager(
           data.id,
           sheetData[i][1],
@@ -135,28 +129,28 @@ function updateParticipantStatus(data) {
           "측정을 완료했습니다. 데이터 확인 단계입니다."
         );
       } else if (data.status === "데이터확인완료") {
-        sheet.getRange(row, 10).setValue(today); // J열 (데이터확인일)
+        sheet.getRange(row, 9).setValue(today); // I열 (데이터확인일) - J→I 이동
         sendNotificationToManager(
           data.id,
           sheetData[i][1],
           "데이터 확인을 완료했습니다. 설문 작성 대기 중입니다."
         );
       } else if (data.status === "설문완료") {
-        sheet.getRange(row, 11).setValue(today); // K열 (설문완료일)
+        sheet.getRange(row, 10).setValue(today); // J열 (설문완료일) - K→J 이동
         sendNotificationToManager(
           data.id,
           sheetData[i][1],
           "설문을 완료했습니다. 데이터 제출 대기 중입니다."
         );
       } else if (data.status === "데이터제출완료") {
-        sheet.getRange(row, 12).setValue(today); // L열 (데이터제출일)
+        sheet.getRange(row, 11).setValue(today); // K열 (데이터제출일) - L→K 이동
         sendNotificationToManager(
           data.id,
           sheetData[i][1],
           "데이터를 제출했습니다. 매니저 확인이 필요합니다."
         );
       } else if (data.status === "매니저확인완료") {
-        sheet.getRange(row, 13).setValue(today); // M열 (매니저확인일)
+        sheet.getRange(row, 12).setValue(today); // L열 (매니저확인일) - M→L 이동
         sendNotificationToManager(
           data.id,
           sheetData[i][1],
