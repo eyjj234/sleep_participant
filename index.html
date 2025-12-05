@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>기기 추적 대시보드</title>
+    <link
+      rel="stylesheet"
+      as="style"
+      crossorigin
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Pretendard", -apple-system, BlinkMacSystemFont,
+          "SF Pro Text", "Helvetica Neue", sans-serif;
+        background: #f5f5f7;
+        padding: 12px;
+        min-height: 100vh;
+        color: #1d1d1f;
+      }
+
+      .container {
+        max-width: 1600px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        color: #1d1d1f;
+        margin-bottom: 20px;
+        font-size: 1.5em;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        display: inline-block;
+      }
+
+      .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .stats-text {
+        font-size: 0.85em;
+        color: #86868b;
+        text-align: right;
+        line-height: 1.6;
+      }
+
+      .stats-text span {
+        color: #1d1d1f;
+        font-weight: 600;
+      }
+
+      .config-section {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        border: 1px solid #d2d2d7;
+        margin-bottom: 30px;
+      }
+
+      .config-section h2 {
+        color: #1d1d1f;
+        margin-bottom: 20px;
+        font-size: 1.5em;
+        font-weight: 600;
+      }
+
+      .input-group {
+        margin-bottom: 16px;
+      }
+
+      .input-group label {
+        display: block;
+        margin-bottom: 6px;
+        color: #1d1d1f;
+        font-size: 0.9em;
+        font-weight: 500;
+      }
+
+      .input-group input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #d2d2d7;
+        border-radius: 6px;
+        font-size: 0.95em;
+        background: white;
+      }
+
+      .input-group input:focus {
+        outline: none;
+        border-color: #86868b;
+      }
+
+      button {
+        background: #1d1d1f;
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.95em;
+        font-weight: 500;
+        cursor: pointer;
+        transition: opacity 0.2s;
+      }
+
+      button:hover {
+        opacity: 0.8;
+      }
+
+      button:disabled {
+        background: #d2d2d7;
+        cursor: not-allowed;
+        opacity: 1;
+      }
+
+      .devices-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 30px;
+      }
+
+      .device-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #d2d2d7;
+        position: relative;
+      }
+
+      .device-card.warning {
+        background: #fafafa;
+      }
+
+      .device-card.danger {
+        background: #f5f5f7;
+      }
+
+      .device-card.ok {
+        background: white;
+      }
+
+      .device-group {
+        background: white;
+        padding: 12px 16px;
+        border-radius: 6px;
+        border: 1px solid #d2d2d7;
+        margin-bottom: 8px;
+      }
+
+      .device-group-header {
+        font-size: 1em;
+        font-weight: 600;
+        color: #1d1d1f;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #f5f5f7;
+      }
+
+      .device-items {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 8px;
+      }
+
+      .device-item {
+        padding: 8px 10px;
+        background: #fafafa;
+        border-radius: 4px;
+      }
+
+      .device-item-type {
+        font-size: 0.7em;
+        color: #86868b;
+        font-weight: 500;
+        margin-bottom: 3px;
+      }
+
+      .device-item-id {
+        font-size: 0.85em;
+        font-weight: 500;
+        color: #1d1d1f;
+        margin-bottom: 6px;
+      }
+
+      .device-item-info {
+        font-size: 0.72em;
+        color: #86868b;
+        margin: 2px 0;
+      }
+
+      .device-type {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 0.75em;
+        font-weight: 500;
+        margin-bottom: 10px;
+        background: #f5f5f7;
+        color: #86868b;
+        border: 1px solid #d2d2d7;
+      }
+
+      .type-android {
+        background: #f5f5f7;
+        color: #86868b;
+      }
+
+      .type-watch {
+        background: #f5f5f7;
+        color: #86868b;
+      }
+
+      .device-id {
+        font-size: 1.1em;
+        font-weight: 600;
+        color: #1d1d1f;
+        margin-bottom: 5px;
+      }
+
+      .device-owner {
+        font-size: 1.3em;
+        color: #1d1d1f;
+        margin: 10px 0;
+        font-weight: 600;
+      }
+
+      .device-info {
+        color: #86868b;
+        margin: 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9em;
+      }
+
+      .device-info strong {
+        color: #1d1d1f;
+        min-width: 80px;
+        font-weight: 500;
+      }
+
+      .days-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-weight: 500;
+        font-size: 0.75em;
+        border: 1px solid #d2d2d7;
+      }
+
+      .days-ok {
+        background: #f5f5f7;
+        color: #86868b;
+      }
+
+      .days-warning {
+        background: #f5f5f7;
+        color: #1d1d1f;
+        border-color: #86868b;
+      }
+
+      .days-danger {
+        background: #1d1d1f;
+        color: white;
+        border-color: #1d1d1f;
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 0.8em;
+        font-weight: 500;
+        background: #f5f5f7;
+        color: #86868b;
+        border: 1px solid #d2d2d7;
+      }
+
+      .status-active {
+        background: #f5f5f7;
+        color: #86868b;
+      }
+
+      .status-shipping {
+        background: #f5f5f7;
+        color: #86868b;
+      }
+
+      .error-message {
+        background: white;
+        color: #1d1d1f;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        border: 1px solid #d2d2d7;
+        border-left: 3px solid #1d1d1f;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #86868b;
+        font-size: 1.1em;
+      }
+
+      .history-section {
+        background: white;
+        padding: 16px;
+        border-radius: 6px;
+        border: 1px solid #d2d2d7;
+        margin-top: 12px;
+      }
+
+      .history-section h2 {
+        color: #1d1d1f;
+        margin-bottom: 12px;
+        font-size: 1em;
+        font-weight: 600;
+      }
+
+      .history-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .history-table th {
+        background: #f5f5f7;
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #d2d2d7;
+        color: #1d1d1f;
+        font-weight: 500;
+        font-size: 0.75em;
+      }
+
+      .history-table td {
+        padding: 8px;
+        border-bottom: 1px solid #f5f5f7;
+        color: #86868b;
+        font-size: 0.75em;
+      }
+
+      .history-table tr:hover {
+        background: #fafafa;
+      }
+
+      .last-updated {
+        text-align: center;
+        color: #86868b;
+        margin-top: 20px;
+        font-size: 0.85em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header-section">
+        <h1>📱 기기 추적 대시보드</h1>
+        <div id="statsText" class="stats-text" style="display: none"></div>
+      </div>
+
+      <div id="configSection" class="config-section">
+        <h2>🔧 Google Sheets 설정</h2>
+        <div class="input-group">
+          <label for="spreadsheetId">Spreadsheet ID:</label>
+          <input
+            type="text"
+            id="spreadsheetId"
+            placeholder="1AbC...XyZ 형태의 ID"
+          />
+        </div>
+        <div class="input-group">
+          <label for="apiKey">Google Sheets API Key:</label>
+          <input type="text" id="apiKey" placeholder="AIza... 형태의 API 키" />
+        </div>
+        <div class="input-group">
+          <label for="historySheetName">히스토리 시트 이름:</label>
+          <input
+            type="text"
+            id="historySheetName"
+            placeholder="예: 이동_히스토리"
+            value="이동_히스토리"
+          />
+        </div>
+        <button onclick="saveConfig()">저장하고 불러오기</button>
+        <p style="margin-top: 15px; color: #666; font-size: 0.9em">
+          ℹ️ <strong>API 키 발급 방법:</strong><br />
+          1.
+          <a
+            href="https://console.cloud.google.com/apis/credentials"
+            target="_blank"
+            >Google Cloud Console</a
+          >
+          접속<br />
+          2. 프로젝트 생성 (또는 선택)<br />
+          3. "API 및 서비스" → "라이브러리" → "Google Sheets API" 검색 → 사용
+          설정<br />
+          4. "사용자 인증 정보" → "+ 사용자 인증 정보 만들기" → "API 키"<br />
+          5. 생성된 API 키 복사<br />
+          ✅ 무료 (하루 300회 무료 할당량)
+        </p>
+      </div>
+
+      <div id="errorMessage" class="error-message" style="display: none"></div>
+
+      <div id="devicesSection" style="display: none">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+          "
+        >
+          <h2
+            style="
+              color: #1d1d1f;
+              font-size: 1.1em;
+              font-weight: 600;
+              margin: 0;
+            "
+          >
+            현재 기기 위치
+          </h2>
+          <span
+            style="color: #86868b; font-size: 0.85em"
+            id="currentDate"
+          ></span>
+        </div>
+        <div id="devicesGrid" class="devices-grid"></div>
+      </div>
+
+      <div id="historySection" style="display: none" class="history-section">
+        <h2>📜 최근 이동 히스토리 (최근 20건)</h2>
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>기기ID</th>
+              <th>보유자</th>
+              <th>타겟에게보낸날</th>
+              <th>타겟이받은날</th>
+              <th>다음타겟</th>
+              <th>비고</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="last-updated" id="lastUpdated"></div>
+    </div>
+
+    <script>
+      // ===== 여기에 설정을 직접 입력하세요 =====
+      let config = {
+        spreadsheetId: "1Q9M65gPsoG3-sv_-rtgdf92Hz0kCXRuPh5FcuE68QmM", // 구글 시트 ID 입력
+        apiKey: "AIzaSyAMrbcjL3xE_gCxcLnXlCsVJobMxzUzJW8", // Google Sheets API 키 입력
+        historySheetName: "이동_히스토리",
+      };
+
+      // 로컬 스토리지에서 설정 불러오기
+      function loadConfig() {
+        // 코드에 설정이 있으면 바로 사용
+        if (config.spreadsheetId && config.apiKey) {
+          document.getElementById("configSection").style.display = "none";
+          fetchData();
+          return;
+        }
+
+        // 없으면 로컬 스토리지에서 불러오기
+        const saved = localStorage.getItem("sheetsConfig");
+        if (saved) {
+          config = JSON.parse(saved);
+          document.getElementById("spreadsheetId").value =
+            config.spreadsheetId || "";
+          document.getElementById("apiKey").value = config.apiKey || "";
+          document.getElementById("historySheetName").value =
+            config.historySheetName || "이동_히스토리";
+          if (config.spreadsheetId && config.apiKey) {
+            fetchData();
+            document.getElementById("configSection").style.display = "none";
+          }
+        }
+      }
+
+      function saveConfig() {
+        config.spreadsheetId = document
+          .getElementById("spreadsheetId")
+          .value.trim();
+        config.apiKey = document.getElementById("apiKey").value.trim();
+        config.historySheetName =
+          document.getElementById("historySheetName").value.trim() ||
+          "이동_히스토리";
+
+        if (!config.spreadsheetId || !config.apiKey) {
+          showError("Spreadsheet ID와 API Key를 모두 입력해주세요.");
+          return;
+        }
+
+        localStorage.setItem("sheetsConfig", JSON.stringify(config));
+        document.getElementById("configSection").style.display = "none";
+        fetchData();
+      }
+
+      function showError(message) {
+        const errorDiv = document.getElementById("errorMessage");
+        errorDiv.textContent = message;
+        errorDiv.style.display = "block";
+        setTimeout(() => {
+          errorDiv.style.display = "none";
+        }, 5000);
+      }
+
+      function parseDate(dateString) {
+        if (!dateString) return null;
+        // "2025. 11. 26" 형식을 "2025-11-26"으로 변환
+        const cleaned = dateString.replace(/\.\s*/g, "-").trim();
+        const parsed = new Date(cleaned);
+        return isNaN(parsed.getTime()) ? null : parsed;
+      }
+
+      function calculateDays(date) {
+        if (!date) return -1; // 날짜가 없으면 -1 반환
+        // Date 객체가 아니면 parseDate로 변환
+        const arrival = date instanceof Date ? date : parseDate(date);
+        if (!arrival) return -1;
+        const now = new Date();
+        const diff = now - arrival;
+        return Math.floor(diff / (1000 * 60 * 60 * 24));
+      }
+
+      function getDaysClass(days) {
+        if (days >= 5) return "danger";
+        if (days >= 3) return "warning";
+        return "ok";
+      }
+
+      function getDaysBadgeClass(days) {
+        if (days >= 5) return "days-danger";
+        if (days >= 3) return "days-warning";
+        return "days-ok";
+      }
+
+      function formatDeviceId(deviceId) {
+        // A005 -> 안드로이드5, W005 -> 워치5
+        if (!deviceId) return deviceId;
+        const type = deviceId[0];
+        const number = parseInt(deviceId.substring(1)); // 001 -> 1, 005 -> 5
+        if (type === "A") {
+          return `안드로이드${number}`;
+        } else if (type === "W") {
+          return `워치${number}`;
+        }
+        return deviceId;
+      }
+
+      async function fetchData() {
+        try {
+          // Google Sheets API v4 사용 - 히스토리만 읽기
+          const baseUrl = `https://sheets.googleapis.com/v4/spreadsheets/${config.spreadsheetId}/values`;
+          const historyUrl = `${baseUrl}/${encodeURIComponent(
+            config.historySheetName
+          )}!A2:G?key=${config.apiKey}`;
+
+          console.log("히스토리 API URL:", historyUrl);
+
+          const historyResponse = await fetch(historyUrl);
+          const historyResult = await historyResponse.json();
+
+          if (historyResult.error) {
+            let errorMsg = `❌ API 오류: ${historyResult.error.message}\n\n`;
+            if (historyResult.error.code === 403) {
+              errorMsg +=
+                `🔧 해결 방법:\n` +
+                `1. Google Cloud Console (console.cloud.google.com) 접속\n` +
+                `2. "API 및 서비스" → "사용자 인증 정보"\n` +
+                `3. 생성한 API 키 클릭\n` +
+                `4. "API 제한사항" → "제한 안함" 선택\n` +
+                `5. "애플리케이션 제한사항" → "없음" 선택\n` +
+                `6. 저장 후 새로고침`;
+            } else {
+              errorMsg += `시트 이름이 "${config.historySheetName}"인지 확인해주세요.`;
+            }
+            showError(errorMsg);
+            return;
+          }
+
+          const historyData = historyResult.values || [];
+          console.log("히스토리 데이터:", historyData);
+
+          if (!historyData || historyData.length === 0) {
+            showError(
+              `데이터를 찾을 수 없습니다.\n\n시트 이름이 "${config.historySheetName}"인지 확인해주세요.`
+            );
+            return;
+          }
+
+          renderDashboard(historyData);
+          document.getElementById(
+            "lastUpdated"
+          ).textContent = `마지막 업데이트: ${new Date().toLocaleString(
+            "ko-KR"
+          )}`;
+        } catch (error) {
+          showError(
+            "데이터를 불러오는 중 오류가 발생했습니다: " + error.message
+          );
+          console.error("Error:", error);
+        }
+      }
+
+      function renderDashboard(history) {
+        // 히스토리에서 각 기기의 최신 상태 추출
+        const deviceStatus = {}; // deviceId -> 최신 상태
+
+        history.forEach((record) => {
+          const [
+            recordId,
+            deviceId,
+            owner,
+            sentToTarget,
+            receivedByTarget,
+            nextOwner,
+            note,
+          ] = record;
+
+          if (!deviceId) return;
+
+          // 기기별 히스토리 저장
+          if (!deviceStatus[deviceId]) {
+            deviceStatus[deviceId] = [];
+          }
+          deviceStatus[deviceId].push({
+            owner: owner || "-",
+            sentToTarget: sentToTarget || "",
+            receivedByTarget: receivedByTarget || "",
+            nextOwner: nextOwner || "",
+            note: note || "",
+            recordId: recordId,
+          });
+        });
+
+        // 각 기기의 최신 상태 계산
+        const currentDevices = {};
+        Object.keys(deviceStatus).forEach((deviceId) => {
+          const records = deviceStatus[deviceId];
+
+          // 현재 보유자 찾기
+          let currentOwner = "";
+          let arrivalDate = new Date();
+          let currentIndex = -1;
+
+          // 역순으로 확인 (가장 최근부터)
+          let isShipping = false;
+          let isCollecting = false;
+          let currentNote = "";
+          for (let i = records.length - 1; i >= 0; i--) {
+            const record = records[i];
+
+            // 다음타겟이 비어있으면 현재 보유자 또는 배송중
+            if (!record.nextOwner) {
+              currentNote = record.note || "";
+              // 타겟에게보낸날은 있는데 타겟이받은날이 없으면 배송중
+              if (record.sentToTarget && !record.receivedByTarget) {
+                currentOwner = record.owner + " → 배송중";
+                arrivalDate = parseDate(record.sentToTarget);
+                isShipping = true;
+              } else {
+                // 타겟이받은날이 있거나 둘 다 없으면 수집중
+                currentOwner = record.owner + " (수집중)";
+                arrivalDate = record.receivedByTarget
+                  ? parseDate(record.receivedByTarget)
+                  : null;
+                isCollecting = true;
+              }
+              currentIndex = i;
+              break;
+            }
+          }
+
+          // 현재 보유자를 찾지 못했으면 마지막 사람
+          if (!currentOwner) {
+            const lastRecord = records[records.length - 1];
+            currentOwner = lastRecord.nextOwner || lastRecord.owner;
+            arrivalDate = lastRecord.receivedByTarget
+              ? parseDate(lastRecord.receivedByTarget)
+              : null;
+            currentIndex = records.length - 1;
+          }
+
+          // 이동 경로 구성 (이전 → 현재 → 다음)
+          const allOwners = records.map((r) => r.owner);
+          if (records[records.length - 1].nextOwner) {
+            allOwners.push(records[records.length - 1].nextOwner);
+          }
+
+          // 중복 제거하지 않고 전체 경로 유지
+          const fullPath = allOwners;
+
+          currentDevices[deviceId] = {
+            deviceId,
+            currentOwner,
+            arrivalDate,
+            isShipping,
+            isCollecting,
+            note: currentNote,
+            path: fullPath, // 전체 경로 저장
+            currentIndex:
+              fullPath.length -
+              1 -
+              (records[records.length - 1].nextOwner ? 1 : 0), // 현재 보유자 인덱스
+            latestRecord: records[records.length - 1],
+          };
+        });
+
+        // 기기 그룹핑 (같은 사람이 같은 번호의 A+W를 모두 가지고 있을 때만 묶기)
+        const deviceGroups = [];
+        const processed = new Set();
+
+        Object.values(currentDevices).forEach((device) => {
+          if (processed.has(device.deviceId)) return;
+
+          const deviceNum = device.deviceId.substring(1); // A001 -> 001
+          const deviceType = device.deviceId[0]; // A or W
+          const pairType = deviceType === "A" ? "W" : "A";
+          const pairId = pairType + deviceNum;
+
+          // 짝 기기 찾기
+          const pairDevice = currentDevices[pairId];
+
+          // 같은 사람이 둘 다 가지고 있으면 묶기
+          if (pairDevice && pairDevice.currentOwner === device.currentOwner) {
+            deviceGroups.push({
+              key: deviceNum + "-" + device.currentOwner,
+              devices: [device, pairDevice].sort((a, b) =>
+                a.deviceId.localeCompare(b.deviceId)
+              ),
+            });
+            processed.add(device.deviceId);
+            processed.add(pairId);
+          } else {
+            // 한쪽만 있거나 다른 사람이 가지고 있으면 따로
+            deviceGroups.push({
+              key: device.deviceId + "-" + device.currentOwner,
+              devices: [device],
+            });
+            processed.add(device.deviceId);
+          }
+        });
+
+        // 통계 계산
+        let androidCount = 0;
+        let watchCount = 0;
+        let warningCount = 0;
+        let dangerCount = 0;
+        let collectingCount = 0;
+
+        Object.values(currentDevices).forEach((device) => {
+          const days = calculateDays(device.arrivalDate);
+          const type = device.deviceId[0];
+          const ownerName = device.currentOwner
+            .replace(" → 배송중", "")
+            .replace(" (수집중)", "");
+
+          if (type === "A") androidCount++;
+          if (type === "W") watchCount++;
+          // "나"가 보유한 기기는 수집중에서 제외
+          if (device.isCollecting && ownerName !== "나") collectingCount++;
+          if (days >= 3 && days < 5) warningCount++;
+          if (days >= 5) dangerCount++;
+          // days < 0 인 경우 (날짜 없음)는 통계에서 제외
+        });
+
+        // 통계 업데이트
+        const statsText = document.getElementById("statsText");
+        statsText.innerHTML = `
+          안드로이드 <span>${androidCount}</span> ·
+          워치 <span>${watchCount}</span> ·
+          수집중 <span>${collectingCount}</span> ·
+          3일+ <span>${warningCount}</span> ·
+          5일+ <span>${dangerCount}</span>
+        `;
+        statsText.style.display = "block";
+
+        // 현재 날짜 표시
+        const currentDate = document.getElementById("currentDate");
+        const today = new Date();
+        currentDate.textContent = `기준: ${today.toLocaleDateString("ko-KR", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })}`;
+
+        // 기기 그룹별 카드 렌더링
+        const devicesGrid = document.getElementById("devicesGrid");
+        devicesGrid.innerHTML = "";
+
+        // 기기 번호순 정렬
+        deviceGroups.sort((a, b) => {
+          const numA = parseInt(a.devices[0].deviceId.substring(1));
+          const numB = parseInt(b.devices[0].deviceId.substring(1));
+          return numA - numB;
+        });
+
+        deviceGroups.forEach((group) => {
+          const devices = group.devices;
+
+          // 배송중 또는 수집중 여부 확인
+          const isShipping = devices.some((d) => d.isShipping);
+          const isCollecting = devices.some((d) => d.isCollecting);
+
+          // 그룹 내 최대 경과일
+          const maxDays = Math.max(
+            ...devices.map((d) => calculateDays(d.arrivalDate))
+          );
+          const daysClass = maxDays < 0 ? "ok" : getDaysClass(maxDays);
+          const daysBadgeClass =
+            maxDays < 0 ? "days-ok" : getDaysBadgeClass(maxDays);
+
+          let daysText;
+          if (isShipping) {
+            // 배송중인 경우
+            if (maxDays < 0) {
+              daysText = "배송 예정";
+            } else if (maxDays === 0) {
+              daysText = "배송중 (오늘 발송)";
+            } else {
+              daysText = `배송중 ${maxDays}일`;
+            }
+          } else if (isCollecting) {
+            // 수집중인 경우
+            if (maxDays < 0) {
+              daysText = "수집중";
+            } else if (maxDays === 0) {
+              daysText = "수집중 (오늘 시작)";
+            } else {
+              daysText = `수집중 ${maxDays}일`;
+            }
+          } else if (maxDays < 0) {
+            daysText = "날짜 미정";
+          } else {
+            daysText =
+              maxDays === 0
+                ? "오늘 도착"
+                : maxDays === 1
+                ? "1일 경과"
+                : `${maxDays}일 경과`;
+          }
+
+          // 현재 보유자 (그룹 내 모든 기기가 같은 사람에게 있어야 함)
+          const owners = [...new Set(devices.map((d) => d.currentOwner))];
+          const currentOwner =
+            owners.length === 1 ? owners[0] : owners.join(", ");
+
+          // "나"가 보유한 기기인지 확인
+          const ownerName = currentOwner
+            .replace(" → 배송중", "")
+            .replace(" (수집중)", "");
+          const isMyDevice = ownerName === "나";
+
+          // 이동 경로 HTML 생성 (현재 보유자 강조, 최대 3명)
+          const fullPath = devices[0].path;
+          const currentIndex = devices[0].currentIndex;
+
+          // 최대 3명만 표시 (현재 보유자 포함)
+          let path = fullPath;
+          if (fullPath.length > 3) {
+            // 현재 보유자를 중심으로 최대 3명 표시
+            if (currentIndex >= fullPath.length - 1) {
+              // 현재 보유자가 마지막이면 뒤에서 3명
+              path = fullPath.slice(-3);
+            } else {
+              // 현재 보유자가 중간이면 앞뒤 포함해서 3명
+              const start = Math.max(0, currentIndex - 1);
+              path = fullPath.slice(start, start + 3);
+            }
+          }
+
+          // path가 잘렸으면 currentIndex 재계산
+          const adjustedCurrentIndex = path.indexOf(fullPath[currentIndex]);
+
+          let pathHTML =
+            '<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">';
+
+          path.forEach((person, index) => {
+            const isCurrent = index === adjustedCurrentIndex;
+            const isLast = index === path.length - 1;
+            const isNext = isLast && !isCurrent; // 다음 타겟 (마지막이면서 현재가 아닌 경우)
+
+            // 각 사람 표시
+            let bgColor = "transparent";
+            let textColor = "#86868b";
+            let fontWeight = "400";
+
+            if (isCurrent) {
+              // 현재 보유자: 맥 파란색
+              bgColor = "#007AFF";
+              textColor = "white";
+              fontWeight = "600";
+            } else if (isNext) {
+              // 다음 타겟: 짙은 회색
+              bgColor = "#3a3a3c";
+              textColor = "#e5e5e7";
+              fontWeight = "500";
+            }
+
+            pathHTML += `<span style="
+                 display: inline-block;
+                 padding: 4px 10px;
+                 border-radius: 6px;
+                 font-size: 0.9em;
+                 font-weight: ${fontWeight};
+                 color: ${textColor};
+                 background: ${bgColor};
+               ">${person}</span>`;
+
+            // 화살표 (마지막이 아니면)
+            if (!isLast) {
+              pathHTML += `<span style="color: #d2d2d7; font-size: 0.85em;">→</span>`;
+            }
+          });
+          pathHTML += "</div>";
+
+          // 기기 목록 (포맷 적용)
+          const deviceIds = devices
+            .map((d) => formatDeviceId(d.deviceId))
+            .sort()
+            .join(" + ");
+
+          const groupCard = document.createElement("div");
+          groupCard.className = `device-group ${daysClass}`;
+
+          // 지연 정보 (현재 보유자인 경우) 또는 배송 정보
+          let delayInfo = "";
+          if (isShipping) {
+            // 배송중인 경우
+            if (maxDays > 0) {
+              delayInfo = `<div style="font-size: 0.75em; color: #0066CC; margin-top: 6px;">
+                 배송 ${maxDays}일차
+               </div>`;
+            }
+          } else if (isCollecting) {
+            // 수집중인 경우
+            if (maxDays > 0) {
+              delayInfo = `<div style="font-size: 0.75em; color: #2E7D32; margin-top: 6px;">
+                 수집 ${maxDays}일차
+               </div>`;
+            }
+          } else if (maxDays > 0) {
+            // 정상 보유중인 경우
+            delayInfo = `<div style="font-size: 0.75em; color: #8B4513; margin-top: 6px;">
+               ${maxDays}일 경과
+             </div>`;
+          }
+
+          // 비고 정보 (현재 보유자인 경우)
+          let noteInfo = "";
+          const currentNotes = [
+            ...new Set(devices.map((d) => d.note).filter((n) => n)),
+          ];
+          if (currentNotes.length > 0) {
+            noteInfo = `<div style="font-size: 0.75em; color: #86868b; margin-top: 6px; padding-top: 6px; border-top: 1px solid #f5f5f7;">
+               💬 ${currentNotes.join(", ")}
+             </div>`;
+          }
+
+          groupCard.innerHTML = `
+            <div class="device-group-header">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 1em; font-weight: 600; color: ${
+                  isMyDevice ? "#FF9500" : "#1d1d1f"
+                };">${deviceIds}</span>
+                <span class="days-badge ${daysBadgeClass}">${daysText}</span>
+              </div>
+            </div>
+            <div style="padding: 8px 0;">
+              <div style="font-size: 0.75em; color: #86868b; margin-bottom: 6px;">이동 경로</div>
+              ${pathHTML}
+              <div style="font-size: 0.75em; color: #86868b; margin-top: 8px;">
+                ${isShipping ? "발송" : isCollecting ? "시작" : "수령"}: ${
+            devices[0].arrivalDate
+              ? devices[0].arrivalDate.toLocaleString("ko-KR", {
+                  month: "short",
+                  day: "numeric",
+                })
+              : "없음"
+          }
+              </div>
+              ${delayInfo}
+              ${noteInfo}
+            </div>
+          `;
+
+          devicesGrid.appendChild(groupCard);
+        });
+
+        // 히스토리 렌더링 (최근 20건, 역순)
+        const historyTableBody = document.getElementById("historyTableBody");
+        historyTableBody.innerHTML = "";
+
+        const recentHistory = [...history].reverse().slice(0, 20);
+        recentHistory.forEach((record) => {
+          const [
+            recordId,
+            deviceId,
+            owner,
+            sentToTarget,
+            receivedByTarget,
+            nextOwner,
+            note,
+          ] = record;
+          const row = document.createElement("tr");
+          const sentDate = parseDate(sentToTarget);
+          const receivedDate = parseDate(receivedByTarget);
+
+          row.innerHTML = `
+                    <td>${formatDeviceId(deviceId)}</td>
+                    <td>${owner}</td>
+                    <td>${
+                      sentDate
+                        ? sentDate.toLocaleString("ko-KR", {
+                            month: "short",
+                            day: "numeric",
+                          })
+                        : "-"
+                    }</td>
+                    <td>${
+                      receivedDate
+                        ? receivedDate.toLocaleString("ko-KR", {
+                            month: "short",
+                            day: "numeric",
+                          })
+                        : "-"
+                    }</td>
+                    <td>${nextOwner || "보유중"}</td>
+                    <td style="color: #86868b;">${note || "-"}</td>
+                `;
+          historyTableBody.appendChild(row);
+        });
+
+        // 섹션 표시
+        document.getElementById("devicesSection").style.display = "block";
+        document.getElementById("historySection").style.display = "block";
+      }
+
+      // 30초마다 자동 새로고침
+      setInterval(() => {
+        if (config.spreadsheetId && config.apiKey) {
+          fetchData();
+        }
+      }, 30000);
+
+      // 페이지 로드 시 설정 불러오기
+      loadConfig();
+    </script>
+  </body>
+</html>

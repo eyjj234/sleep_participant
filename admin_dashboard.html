@@ -324,6 +324,7 @@
         transition: all 0.2s;
         cursor: pointer;
         box-shadow: 0 4px 0 rgba(0, 0, 0, 1);
+        min-height: 140px;
       }
 
       .device-card:hover {
@@ -332,8 +333,8 @@
       }
 
       .device-card.available {
-        border-color: #000000;
-        background: #ffffff;
+        border-color: #ddd;
+        background: #fafafa;
       }
 
       .device-card.in-use {
@@ -342,8 +343,8 @@
       }
 
       .device-card.repair {
-        border-color: #000000;
-        background: #f5f5f5;
+        border-color: #ff6b6b;
+        background: #ffe6e6;
       }
 
       .device-number {
@@ -364,8 +365,9 @@
       }
 
       .device-status.available {
-        background: #000000;
-        color: white;
+        background: #e9ecef;
+        color: #666;
+        border-color: #999;
       }
 
       .device-status.in-use {
@@ -374,14 +376,16 @@
       }
 
       .device-status.repair {
-        background: #000000;
+        background: #ff6b6b;
         color: white;
+        border-color: #ff6b6b;
       }
 
       .device-user {
         font-size: 13px;
-        color: #666;
+        color: #333;
         margin-top: 8px;
+        text-align: left;
       }
 
       .device-date {
@@ -426,21 +430,25 @@
           <div class="label">전체 참가자</div>
           <div class="value" id="stat-total">-</div>
         </div>
-        <div class="stat-card completed">
-          <div class="label">완료</div>
-          <div class="value" id="stat-completed">-</div>
+        <div class="stat-card in-progress">
+          <div class="label">📦 발송완료</div>
+          <div class="value" id="stat-shipping">-</div>
         </div>
         <div class="stat-card in-progress">
-          <div class="label">수집중</div>
-          <div class="value" id="stat-in-progress">-</div>
+          <div class="label">🔗 연동대기</div>
+          <div class="value" id="stat-waiting-sync">-</div>
         </div>
         <div class="stat-card urgent">
-          <div class="label">긴급 처리</div>
+          <div class="label">😴 수집중</div>
+          <div class="value" id="stat-collecting">-</div>
+        </div>
+        <div class="stat-card urgent">
+          <div class="label">🚨 긴급 처리</div>
           <div class="value" id="stat-urgent">-</div>
         </div>
-        <div class="stat-card devices">
-          <div class="label">사용 가능 기기</div>
-          <div class="value" id="stat-devices">-</div>
+        <div class="stat-card completed">
+          <div class="label">✅ 완료</div>
+          <div class="value" id="stat-completed">-</div>
         </div>
       </div>
 
@@ -475,12 +483,14 @@
             />
             <div class="filter-group">
               <button class="filter-btn active" data-filter="all">전체</button>
-              <button class="filter-btn" data-filter="대기중">대기중</button>
-              <button class="filter-btn" data-filter="수집중">수집중</button>
-              <button class="filter-btn" data-filter="데이터제출완료">
-                제출완료
+              <button class="filter-btn" data-filter="발송완료">
+                📦 발송완료
               </button>
-              <button class="filter-btn" data-filter="긴급">긴급</button>
+              <button class="filter-btn" data-filter="연동대기">
+                🔗 연동대기
+              </button>
+              <button class="filter-btn" data-filter="수집중">😴 수집중</button>
+              <button class="filter-btn" data-filter="긴급">🚨 긴급</button>
             </div>
             <button class="refresh-btn" onclick="loadData()">
               🔄 새로고침
@@ -517,7 +527,7 @@
     <script>
       // ===== 설정 =====
       const SCRIPT_URL =
-        "https://script.google.com/macros/s/AKfycbzmS1iquOB8yUdsvAuevWyh-L0ORjcJnDkCieDWReXH1gruaBL6e9ZEmThg4vsI4sagfQ/exec";
+        "https://script.google.com/macros/s/AKfycbyHG3tgnnvT-X6IVKktt8tBsd1RYrHheyv3ymK4wcaQYaE1zw6Jv0Z-knWIc-3MWzTH4w/exec";
 
       let allParticipants = [];
       let currentFilter = "all";
@@ -559,39 +569,74 @@
         grid.innerHTML = devices
           .map((device) => {
             let statusClass = "available";
-            let statusText = "사용 가능";
 
             if (device.status === "사용중") {
               statusClass = "in-use";
-              statusText = "사용 중";
             } else if (device.status === "수리중") {
               statusClass = "repair";
-              statusText = "수리 중";
             }
 
             const showDetails = device.status === "사용중";
             const showRepairInfo = device.status === "수리중";
 
+            // 같은 기기에 여러 사용자가 있는 경우
+            const hasMultipleUsers = device.users && device.users.length > 1;
+
             return `
             <div class="device-card ${statusClass}">
               <div class="device-number">#${device.number}</div>
-              <div class="device-status ${statusClass}">${statusText}</div>
               ${
-                showDetails
+                showDetails && hasMultipleUsers
                   ? `
-                <div class="device-user">👤 ${device.currentUser}</div>
-                <div class="device-date">📅 ${device.startDate}</div>
-                <div class="device-date">🔙 ${device.returnDate}</div>
+                ${device.users
+                  .map(
+                    (user, idx) => `
+                  <div class="device-user" style="margin-top: ${
+                    idx > 0 ? "12px" : "8px"
+                  }; padding-top: ${idx > 0 ? "12px" : "0"}; border-top: ${
+                      idx > 0 ? "2px solid rgba(0,0,0,0.1)" : "none"
+                    };">
+                    <div style="font-weight: bold; margin-bottom: 6px; font-size: 14px;">👤 ${
+                      user.user
+                    }</div>
+                    <div style="font-size: 12px; color: #333; background: rgba(0,0,0,0.08); padding: 6px 10px; border-radius: 6px; font-weight: 500;">${
+                      user.status
+                    }</div>
+                  </div>
+                `
+                  )
+                  .join("")}
+              `
+                  : showDetails
+                  ? `
+                <div class="device-user" style="margin-top: 8px;">
+                  <div style="font-weight: bold; margin-bottom: 6px; font-size: 14px;">👤 ${
+                    device.currentUser
+                  }</div>
+                  <div style="font-size: 12px; color: #333; background: rgba(0,0,0,0.08); padding: 8px 12px; border-radius: 6px; font-weight: 500;">
+                    ${
+                      device.users && device.users[0]
+                        ? device.users[0].status
+                        : "-"
+                    }
+                  </div>
+                  <div style="font-size: 11px; color: #999; margin-top: 8px;">📅 ${
+                    device.startDate
+                  }</div>
+                </div>
               `
                   : showRepairInfo
                   ? `
-                <div class="device-user">🔧 수리 중</div>
-                <div class="device-date">${
-                  device.currentUser !== "-" ? device.currentUser : "점검/수리"
-                }</div>
-                <div style="height: 20px;"></div>
+                <div class="device-user" style="margin-top: 8px;">
+                  <div style="font-weight: bold; color: #ff6b6b;">🔧 수리중</div>
+                  ${
+                    device.currentUser !== "-"
+                      ? `<div style="font-size: 12px; color: #999; margin-top: 6px;">${device.currentUser}</div>`
+                      : ""
+                  }
+                </div>
               `
-                  : '<div style="height: 60px;"></div>'
+                  : '<div style="height: 80px; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 13px;">—</div>'
               }
             </div>
           `;
@@ -602,13 +647,15 @@
       // ===== 통계 업데이트 =====
       function updateStats(stats) {
         document.getElementById("stat-total").textContent = stats.total || 0;
+        document.getElementById("stat-shipping").textContent =
+          stats.shipping || 0;
+        document.getElementById("stat-waiting-sync").textContent =
+          stats.waitingSync || 0;
+        document.getElementById("stat-collecting").textContent =
+          stats.collecting || 0;
+        document.getElementById("stat-urgent").textContent = stats.urgent || 0;
         document.getElementById("stat-completed").textContent =
           stats.completed || 0;
-        document.getElementById("stat-in-progress").textContent =
-          stats.inProgress || 0;
-        document.getElementById("stat-urgent").textContent = stats.urgent || 0;
-        document.getElementById("stat-devices").textContent =
-          stats.availableDevices || 0;
       }
 
       // ===== 테이블 렌더링 =====
@@ -663,6 +710,18 @@
 
         if (filter === "긴급") {
           filtered = allParticipants.filter((p) => p.priority === "긴급");
+        } else if (filter === "연동대기") {
+          filtered = allParticipants.filter(
+            (p) => p.status === "연동대기" || p.status === "수령완료"
+          );
+        } else if (filter === "수집중") {
+          filtered = allParticipants.filter(
+            (p) => p.status === "수집중" || p.status === "연동완료"
+          );
+        } else if (filter === "발송완료") {
+          filtered = allParticipants.filter(
+            (p) => p.status === "발송완료" || p.status === "수령확인필요"
+          );
         } else if (filter !== "all") {
           filtered = allParticipants.filter((p) => p.status === filter);
         }

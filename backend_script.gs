@@ -7,6 +7,16 @@
 // 웹앱 GET 요청 핸들러 (페이지 제공)
 // ========================================
 function doGet(e) {
+  // time-based 트리거로 실행된 경우 e가 undefined일 수 있음
+  if (!e || !e.parameter) {
+    return ContentService.createTextOutput(
+      JSON.stringify({
+        success: false,
+        message: "잘못된 요청입니다. 웹 URL을 통해 접근해주세요.",
+      })
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
+
   var page = e.parameter.page || "participant";
 
   if (page === "manager") {
@@ -230,14 +240,19 @@ function getManagerData() {
 
   var participants = [];
   var stats = {
-    total: 150,
+    total: 0,
     completed: 0,
-    inProgress: 0,
+    shipping: 0, // 발송완료
+    waitingSync: 0, // 연동대기
+    collecting: 0, // 수집중
     urgent: 0,
     availableDevices: 10,
   };
 
   for (var i = 1; i < data.length; i++) {
+    // 빈 행 건너뛰기
+    if (!data[i][0]) continue;
+
     var participant = {
       id: data[i][0],
       name: data[i][1],
@@ -249,14 +264,18 @@ function getManagerData() {
     };
 
     participants.push(participant);
+    stats.total++;
 
-    // 통계 계산
+    // 통계 계산 - 진행 중인 상태 강조
     if (data[i][3] === "회수완료") stats.completed++;
-    if (data[i][3] === "수집중") stats.inProgress++;
+    if (data[i][3] === "발송완료" || data[i][3] === "수령확인필요")
+      stats.shipping++;
+    if (data[i][3] === "연동대기" || data[i][3] === "수령완료")
+      stats.waitingSync++;
+    if (data[i][3] === "수집중" || data[i][3] === "연동완료")
+      stats.collecting++;
     if (data[i][14] === "긴급") stats.urgent++; // O열 (우선순위)
   }
-
-  stats.availableDevices = 10 - stats.inProgress;
 
   // 기기 현황 데이터 가져오기
   var devices = getDeviceStatus();
@@ -274,7 +293,7 @@ function getManagerData() {
 }
 
 // ========================================
-// 기기 현황 조회
+// 기기 현황 조회 (같은 기기 중복 사용자 처리)
 // ========================================
 function getDeviceStatus() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -296,7 +315,7 @@ function getDeviceStatus() {
     ]);
     // 기본 10대 기기 데이터 생성
     for (var i = 1; i <= 10; i++) {
-      deviceSheet.appendRow([i, "사용가능", "-", "", ""]);
+      deviceSheet.appendRow([i, "대기중", "-", "", ""]);
     }
   }
 
@@ -311,28 +330,37 @@ function getDeviceStatus() {
     }
   }
 
-  // 기기 1~10번의 사용 현황을 진행현황에서 자동 계산
-  var deviceMap = {}; // 기기번호 -> 사용자 정보
+  // 기기별로 여러 사용자를 배열로 저장
+  var deviceMap = {}; // 기기번호 -> [사용자 정보 배열]
 
   for (var i = 1; i < progressData.length; i++) {
+    if (!progressData[i][0]) continue; // 빈 행 건너뛰기
+
     var deviceNum = progressData[i][2]; // C열: 기기번호
     var status = progressData[i][3]; // D열: 현재상태
     var name = progressData[i][1]; // B열: 이름
     var id = progressData[i][0]; // A열: 참가자ID
     var receiveDate = progressData[i][5]; // F열: 수령일
+    var shipDate = progressData[i][4]; // E열: 발송일
 
-    // 기기가 할당되어 있고, 아직 회수 전이면 "사용중"
+    // 기기가 할당되어 있고, 회수완료가 아닌 경우
     if (
       deviceNum &&
       deviceNum !== "-" &&
       status !== "회수완료" &&
+      status !== "납품완료" &&
       status !== "대기중"
     ) {
-      deviceMap[deviceNum] = {
+      if (!deviceMap[deviceNum]) {
+        deviceMap[deviceNum] = [];
+      }
+
+      deviceMap[deviceNum].push({
         user: name || id,
         status: status,
-        startDate: formatDate(receiveDate),
-      };
+        startDate: formatDate(receiveDate || shipDate),
+        receiveDate: formatDate(receiveDate),
+      });
     }
   }
 
@@ -341,10 +369,11 @@ function getDeviceStatus() {
   for (var i = 1; i <= 10; i++) {
     var device = {
       number: i,
-      status: "사용가능",
+      status: "대기중",
       currentUser: "-",
       startDate: "-",
       returnDate: "-",
+      users: [], // 같은 기기 사용자 배열
     };
 
     // 수동 설정된 특수 상태 (수리중 등)가 있으면 최우선 적용
@@ -354,10 +383,14 @@ function getDeviceStatus() {
       device.startDate = "-";
     }
     // 진행현황에서 사용중인 기기면 "사용중"으로 변경
-    else if (deviceMap[i]) {
+    else if (deviceMap[i] && deviceMap[i].length > 0) {
       device.status = "사용중";
-      device.currentUser = deviceMap[i].user;
-      device.startDate = deviceMap[i].startDate;
+      device.users = deviceMap[i];
+
+      // 가장 최근 사용자를 대표로 표시
+      var latestUser = deviceMap[i][deviceMap[i].length - 1];
+      device.currentUser = latestUser.user;
+      device.startDate = latestUser.startDate;
     }
 
     devices.push(device);
