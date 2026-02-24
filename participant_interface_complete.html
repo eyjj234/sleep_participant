@@ -408,44 +408,46 @@
 
       /* 주민번호 섹션 */
       .ssn-section {
-        background: white;
+        background: #fffde7;
         border-radius: 12px;
-        padding: 24px;
+        padding: 25px;
         border: 2px solid #000000;
         box-shadow: 0 4px 0 rgba(0, 0, 0, 1);
-        margin-bottom: 20px;
+        margin-bottom: 24px;
       }
 
       .ssn-section h3 {
-        font-size: 17px;
+        font-size: 18px;
         font-weight: bold;
         color: #333;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
       }
 
       .ssn-section .ssn-desc {
         font-size: 14px;
-        color: #666;
-        line-height: 1.6;
-        margin-bottom: 16px;
+        color: #555;
+        line-height: 1.7;
+        margin-bottom: 20px;
       }
 
       .ssn-input-group {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
         margin-bottom: 16px;
       }
 
       .ssn-input-group input {
+        width: 0;
         flex: 1;
-        padding: 12px;
-        border: 2px solid #e9ecef;
-        border-radius: 8px;
-        font-size: 18px;
+        min-width: 0;
+        padding: 14px 8px;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        font-size: 16px;
         text-align: center;
-        letter-spacing: 2px;
-        font-family: monospace;
+        letter-spacing: 1px;
+        background: #ffffff;
       }
 
       .ssn-input-group input:focus {
@@ -455,16 +457,17 @@
       }
 
       .ssn-input-group .ssn-dash {
-        font-size: 24px;
+        font-size: 20px;
         font-weight: bold;
         color: #333;
+        flex-shrink: 0;
       }
 
       .ssn-submitted {
         background: #f0f9f0;
         border: 2px solid #4caf50;
-        padding: 16px;
-        border-radius: 8px;
+        padding: 18px;
+        border-radius: 10px;
         text-align: center;
         font-size: 15px;
         color: #2e7d32;
