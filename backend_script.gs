@@ -51,6 +51,10 @@ function doPost(e) {
       return getParticipantInfo(data.id, data.name);
     } else if (action === "updateMeasureDate") {
       return updateMeasureDate(data);
+    } else if (action === "submitSSN") {
+      return submitSSN(data);
+    } else if (action === "checkSSN") {
+      return checkSSNStatus(data);
     }
 
     Logger.log("알 수 없는 요청: " + action);
@@ -73,6 +77,19 @@ function getParticipantInfo(participantId, name) {
   // 참가자 찾기
   for (var i = 1; i < data.length; i++) {
     if (data[i][0] === participantId && data[i][1] === name) {
+      // 주민번호 제출 여부 확인
+      var ssnSubmitted = false;
+      var ssnSheet = ss.getSheetByName("주민번호");
+      if (ssnSheet) {
+        var ssnData = ssnSheet.getDataRange().getValues();
+        for (var j = 1; j < ssnData.length; j++) {
+          if (ssnData[j][0] === participantId) {
+            ssnSubmitted = true;
+            break;
+          }
+        }
+      }
+
       var participant = {
         id: data[i][0],
         name: data[i][1],
@@ -85,6 +102,7 @@ function getParticipantInfo(participantId, name) {
         daysElapsed: calculateDaysElapsed(data[i][4]),
         collectDays: calculateCollectDays(data[i][7]),
         pickupDate: formatDate(data[i][12]) || "조율 중", // M열 (회수예정일)
+        ssnSubmitted: ssnSubmitted,
       };
 
       return createResponse(true, "정보를 가져왔습니다.", participant);
@@ -440,6 +458,72 @@ function sendNotificationToManager(participantId, participantName, message) {
   } catch (error) {
     Logger.log("메일 전송 실패: " + error.message);
   }
+}
+
+// ========================================
+// 주민번호 제출
+// ========================================
+function submitSSN(data) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  // "주민번호" 시트가 없으면 자동 생성
+  var ssnSheet = ss.getSheetByName("주민번호");
+  if (!ssnSheet) {
+    ssnSheet = ss.insertSheet("주민번호");
+    ssnSheet.appendRow(["참가자ID", "이름", "주민번호", "입력일시"]);
+  }
+
+  var participantId = data.id;
+  var name = data.name;
+  var ssn = data.ssn;
+
+  // 주민번호 유효성 검사 (숫자 13자리)
+  if (!ssn || !/^\d{13}$/.test(ssn)) {
+    return createResponse(false, "주민번호는 숫자 13자리여야 합니다.");
+  }
+
+  var now = new Date();
+  var timestamp = Utilities.formatDate(now, "GMT+9", "yyyy-MM-dd HH:mm:ss");
+
+  // 기존 입력 여부 확인 → 있으면 업데이트
+  var ssnData = ssnSheet.getDataRange().getValues();
+  for (var i = 1; i < ssnData.length; i++) {
+    if (ssnData[i][0] === participantId) {
+      var row = i + 1;
+      ssnSheet.getRange(row, 3).setValue(ssn);
+      ssnSheet.getRange(row, 4).setValue(timestamp);
+
+      logAction(participantId, name, "주민번호 수정", "참가자");
+      return createResponse(true, "주민번호가 업데이트되었습니다.");
+    }
+  }
+
+  // 새 행 추가
+  ssnSheet.appendRow([participantId, name, ssn, timestamp]);
+
+  logAction(participantId, name, "주민번호 제출", "참가자");
+  return createResponse(true, "주민번호가 제출되었습니다.");
+}
+
+// ========================================
+// 주민번호 제출 여부 확인
+// ========================================
+function checkSSNStatus(data) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ssnSheet = ss.getSheetByName("주민번호");
+
+  if (!ssnSheet) {
+    return createResponse(true, "확인 완료", { submitted: false });
+  }
+
+  var ssnData = ssnSheet.getDataRange().getValues();
+  for (var i = 1; i < ssnData.length; i++) {
+    if (ssnData[i][0] === data.id) {
+      return createResponse(true, "확인 완료", { submitted: true });
+    }
+  }
+
+  return createResponse(true, "확인 완료", { submitted: false });
 }
 
 // ========================================

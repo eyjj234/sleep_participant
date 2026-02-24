@@ -406,6 +406,71 @@
         box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
       }
 
+      /* 주민번호 섹션 */
+      .ssn-section {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        border: 2px solid #000000;
+        box-shadow: 0 4px 0 rgba(0, 0, 0, 1);
+        margin-bottom: 20px;
+      }
+
+      .ssn-section h3 {
+        font-size: 17px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .ssn-section .ssn-desc {
+        font-size: 14px;
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 16px;
+      }
+
+      .ssn-input-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+
+      .ssn-input-group input {
+        flex: 1;
+        padding: 12px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 18px;
+        text-align: center;
+        letter-spacing: 2px;
+        font-family: monospace;
+      }
+
+      .ssn-input-group input:focus {
+        outline: none;
+        border-color: #000000;
+        box-shadow: 0 0 0 3px rgba(255, 235, 59, 0.3);
+      }
+
+      .ssn-input-group .ssn-dash {
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .ssn-submitted {
+        background: #f0f9f0;
+        border: 2px solid #4caf50;
+        padding: 16px;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 15px;
+        color: #2e7d32;
+        font-weight: 600;
+      }
+
       .loading {
         text-align: center;
         padding: 50px;
@@ -557,6 +622,42 @@
           </a>
         </div>
 
+        <!-- 주민번호 입력 섹션 -->
+        <div class="ssn-section" id="ssn-section" style="display: none">
+          <h3>📋 주민번호 입력</h3>
+          <p class="ssn-desc">
+            기다려주셔서 감사합니다.<br />
+            참여비 지급을 위해 추가적인 개인정보를 요청드립니다(소득 신고용).
+          </p>
+          <div id="ssn-form">
+            <div class="ssn-input-group">
+              <input
+                type="text"
+                id="ssn-front"
+                placeholder="생년월일"
+                maxlength="6"
+                inputmode="numeric"
+                pattern="[0-9]{6}"
+              />
+              <span class="ssn-dash">-</span>
+              <input
+                type="password"
+                id="ssn-back"
+                placeholder="뒷자리"
+                maxlength="7"
+                inputmode="numeric"
+                pattern="[0-9]{7}"
+              />
+            </div>
+            <button class="btn" id="ssn-submit-btn" onclick="submitSSN()">
+              제출하기
+            </button>
+          </div>
+          <div id="ssn-submitted" class="ssn-submitted" style="display: none">
+            ✅ 주민번호가 제출되었습니다. 감사합니다!
+          </div>
+        </div>
+
         <div id="current-alert" style="display: none">
           <!-- 동적으로 생성 -->
         </div>
@@ -656,11 +757,92 @@
         // 사용자 정보 표시
         renderUserInfo(data);
 
+        // 주민번호 섹션 표시
+        renderSSNSection(data);
+
         // 현재 상태 알림
         renderCurrentAlert(data);
 
         // 타임라인 렌더링
         renderTimeline(data);
+      }
+
+      // ===== 주민번호 섹션 렌더링 =====
+      function renderSSNSection(data) {
+        var ssnSection = document.getElementById("ssn-section");
+        var ssnForm = document.getElementById("ssn-form");
+        var ssnSubmitted = document.getElementById("ssn-submitted");
+
+        ssnSection.style.display = "block";
+
+        if (data.ssnSubmitted) {
+          ssnForm.style.display = "none";
+          ssnSubmitted.style.display = "block";
+        } else {
+          ssnForm.style.display = "block";
+          ssnSubmitted.style.display = "none";
+        }
+      }
+
+      // ===== 주민번호 제출 =====
+      async function submitSSN() {
+        if (!currentUser) return;
+
+        var front = document.getElementById("ssn-front").value.trim();
+        var back = document.getElementById("ssn-back").value.trim();
+
+        // 유효성 검사
+        if (!/^\d{6}$/.test(front)) {
+          alert("주민번호 앞자리는 숫자 6자리여야 합니다.");
+          return;
+        }
+        if (!/^\d{7}$/.test(back)) {
+          alert("주민번호 뒷자리는 숫자 7자리여야 합니다.");
+          return;
+        }
+
+        var ssn = front + back;
+
+        if (
+          !confirm(
+            "주민번호 " + front + "-" + back.charAt(0) + "******" + "을 제출하시겠습니까?"
+          )
+        ) {
+          return;
+        }
+
+        var btn = document.getElementById("ssn-submit-btn");
+        btn.disabled = true;
+        btn.textContent = "제출 중...";
+
+        try {
+          var response = await fetch(SCRIPT_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({
+              action: "submitSSN",
+              id: currentUser.id,
+              name: currentUser.name,
+              ssn: ssn,
+            }),
+          });
+
+          var result = await response.json();
+
+          if (result.success) {
+            alert("✅ " + result.message);
+            currentUser.ssnSubmitted = true;
+            renderSSNSection(currentUser);
+          } else {
+            alert("❌ " + result.message);
+          }
+        } catch (error) {
+          alert("❌ 서버와 통신 중 오류가 발생했습니다.");
+          console.error(error);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "제출하기";
+        }
       }
 
       // ===== 사용자 정보 렌더링 =====
@@ -1384,6 +1566,18 @@
         document.getElementById("participant-id").value = "";
         document.getElementById("participant-name").value = "";
       }
+
+      // ===== 주민번호 앞자리 → 뒷자리 자동 포커스 =====
+      document.addEventListener("DOMContentLoaded", function () {
+        var ssnFront = document.getElementById("ssn-front");
+        if (ssnFront) {
+          ssnFront.addEventListener("input", function () {
+            if (this.value.length === 6) {
+              document.getElementById("ssn-back").focus();
+            }
+          });
+        }
+      });
 
       // ===== URL 파라미터 자동 로그인 =====
       window.onload = function () {
